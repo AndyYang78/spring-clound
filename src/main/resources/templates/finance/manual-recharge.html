@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN"
+      layout:decorator="layout">
+<head>
+    <title>打赏明细</title>
+    <meta name="description"
+          content="Flat UI Kit Free is a Twitter Bootstrap Framework design and Theme, this responsive framework includes a PSD and HTML version."/>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_hader" th:content="${_csrf.headerName}"/>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <link rel="stylesheet" href="/common/plugins/datepicker/datepicker3.css">
+</head>
+<body>
+<div class="wrapper">
+    <img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0"
+         src="/common/lte/img/bg5.jpg"/>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1><i class="fa  fa-hand-lizard-o"></i>
+                手工充值
+                <small>查看手工充值</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 财务</a></li>
+                <li class="active">手工充值</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section id="main" class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-info">
+                        <!-- /.box-header -->
+                        <div class="box-header">
+                            <h3 class="box-title"><i class="fa fa-filter"></i>筛选条件</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>用户ID:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <span type="button" id="sel_id" class="btn btn-info dropdown-toggle"
+                                                  data-toggle="dropdown">用户ID</span>
+                                        </div>
+                                        <input type="text" id="txt_query" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-2 col-sm-4 col-xs-5">
+                                    <label>充值类型:</label>
+                                    <select id="recharge_status" class="form-control back">
+                                        <option value="">全部</option>
+                                        <option value="BOSS">手工充值-老板</option>
+                                        <option value="OPERATE">手工充值-运营常规</option>
+                                        <option value="SUPPLY">手工充值-补充</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-8">
+                                    <label><i class="fa fa-calendar-o">&nbsp;</i>筛选时间:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </div>
+                                        <input type="text" class="form-control pull-left" id="txt-date-range">
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="onSearch()"><i
+                                                class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="reset_form()"><i
+                                                class="fa fa-fw fa-refresh"></i>&nbsp;重&nbsp;&nbsp;置</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="firstDiv"></div>
+                    <div class="box box-success">
+                        <div id="model_use" class="box-header">
+                            <div id="toolbar">
+                                <a class="btn btn-success" onclick="recharge()"><i class="fa fa-sign-in"></i>充值</a>
+                            </div>
+                        </div>
+                        <div class="box-body">
+                            <table id="dg-user" class="table table-bordered table-hover"
+                                   data-url="/finance/manual/recharge/list"
+                                   data-toolbar="#toolbar"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-query-params="getQueryParams"
+                                   data-toggle="table"
+                                   data-pagination="true"
+                                   data-side-pagination="server"
+                                   data-search="false"
+                                   data-show-export="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="userNo"
+                                        data-th-align="center"
+                                        data-align="center">用户ID
+                                    </th>
+                                    <th data-field="userNick"
+                                        data-th-align="center"
+                                        data-align="center">用户昵称
+                                    </th>
+                                    <th data-field="rechargeDiamonds"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">充值钻石
+                                    </th>
+                                    <th data-field="deductDiamonds"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">扣除钻石
+                                    </th>
+                                    <th data-field="rechargeCrystal"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">充值水晶
+                                    </th>
+                                    <th data-field="deductCrystal"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">扣除水晶
+                                    </th>
+                                    <th data-field="operationDate"
+                                        data-th-align="center"
+                                        data-align="center">操作时间
+                                    </th>
+                                    <th data-field="operationType"
+                                        data-formatter="typeState"
+                                        data-th-align="center"
+                                        data-align="center">操作类型
+                                    </th>
+                                    <th data-field="remarks"
+                                        data-th-align="center"
+                                        data-align="center">备注
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 充值数据 -->
+        <div class="modal fade" id="modal_recharge" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">充值</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                   <label class="control-label" for="input_mobile">手机号<a style="color: red">*</a>:</label>
+                                    <input type="text" class="form-control input-sm" id="input_mobile" placeholder="输入手机号">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label" for="recharge_type" >类型:</label>
+                                    <select id="recharge_type" class="form-control input-sm">
+                                        <option value="RECHARGE_DIAMONDS">充值钻石</option>
+                                        <option value="DEDUCT_DIAMONDS">扣除钻石</option>
+                                        <option value="RECHARGE_CRYSTAL">充值水晶</option>
+                                        <option value="DEDUCT_CRYSTAL">扣除水晶</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label" for="recharge_type" >行为:</label>
+                                    <select id="operate_type" class="form-control input-sm">
+                                        <option value="BOSS">手工充值-老板</option>
+                                        <option value="OPERATE">手工充值-运营常规</option>
+                                        <option value="SUPPLY">手工充值-补充</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label" >充值水晶或者钻石值<a style="color: red">*</a>:</label>
+                                    <input type="text" class="form-control input-sm" id="input_amount" placeholder="输入充值水晶或者钻石值">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">备注:</label>
+                                    <input type="text" class="form-control input-sm" id="input_remark" placeholder="输入备注">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">密码<a style="color: red">*</a>:</label>
+                                    <input type="text" class="form-control input-sm" id="input_password" placeholder="输入密码">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" onclick="commitType()" class="btn btn-success  col-lg-pull-6">确定为该用户充值</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script layout:fragment="scripts" th:inline="javascript">
+
+    var token = $('meta[name="_csrf"]').attr("content");
+    var header = $('meta[name="_csrf_hader"]').attr("content");
+    $(document).ajaxSend(function (e, xhr, opt) {
+        xhr.setRequestHeader(header, token);
+    });
+    //默认时间
+    var now=new Date();
+    var str = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate()
+    /**
+     *
+     * 查询用户信息
+     * */
+    function onSearch() {
+        var pageSize = $('#dg-user').bootstrapTable('getOptions')['pageSize'];
+        var queryParam = getQueryParams({'offset': 0, 'limit': pageSize});
+        $('#dg-user').bootstrapTable('refresh', {
+            'url': '/finance/manual/recharge/list',
+            'query': queryParam
+        });
+    }
+    /**
+     * 重置所有属性
+     * @param obj
+     * @returns {boolean}
+     */
+    function reset_form() {
+        $('#txt_query').val("");
+        $('#txt-date-range').val("");
+        $('#recharge_status').val("");
+    }
+    /**
+     * 充值 数据
+     * @param params
+     * @returns {*}
+     */
+    function recharge(){
+        $('#modal_recharge').modal('show');
+    }
+    /**
+     * 充值数据
+     * @param params
+     * @returns {*}
+     */
+    function commitType(){
+        var param = {};
+        var rechargeType = $('#recharge_type').val();
+        var amount = $('#input_amount').val();
+        param['mobile'] = $('#input_mobile').val();
+        param['operateType'] = $('#operate_type').val();
+        param['rechargeType'] = rechargeType;
+        switch(rechargeType){
+            case "RECHARGE_DIAMONDS":
+                param['rechargeDiamonds']= amount;
+                break;
+            case "RECHARGE_CRYSTAL":
+                param['rechargeCrystal']= amount;
+                break;
+            case "DEDUCT_DIAMONDS":
+                param['deductDiamonds']= amount;
+                break;
+            case "DEDUCT_CRYSTAL":
+                param['deductCrystal']= amount;
+                break;
+        }
+        param['rechargePassword'] = $('#input_password').val();
+        param['remarks'] = $('#input_remark').val();
+        //开始提交
+        $.post('/finance/manual/recharge', param, function (response) {
+            if (response.success) {
+                $('#dg-user').bootstrapTable('refresh');
+                $('#modal_recharge').modal('hide');
+                note('充值成功！', 'success', 1500, 'topRight');
+            } else {
+                note('充值失败:' + response.message, 'error', 1500, 'topRight');
+                $('#modal_recharge').modal('hide');
+            }
+        })
+    }
+
+
+    // 获取查询参数
+    function getQueryParams(params) {
+        var dateStart = $('#txt-date-range').val().split(" - ")[0];
+        var dateEnd = $('#txt-date-range').val().split(" - ")[1];
+        if(dateStart==null || dateStart ==''){
+            dateStart=str;
+            dateEnd=str;
+        }
+        var input_name = $('#txt_query').val();
+        params['dateStart'] = dateStart;
+        params['dateEnd'] = dateEnd;
+        params['rechargeType'] = $('#recharge_status').val();
+        if(input_name!=null&&input_name!=''){
+            params['userId'] = input_name;
+        }
+        return params;
+    }
+    /**
+     * 充值类型
+     */
+    function  typeState(rechargeType) {
+        switch(rechargeType){
+            case "BOSS":
+                return "<span style='color: #00a1cb'>老板</span>";
+            case "OPERATE":
+                return "<span style='color: chartreuse'>运营常规</span>";
+            case "SUPPLY":
+                return "<span style='color: darkblue'>补充</span>";
+        }
+
+    }
+
+
+    $(function () {
+        $('#txt-date-range').daterangepicker({
+            autoApply: true, maxDate: moment().format('YYYY-MM-DD'),
+            startDate: moment().subtract(0, 'days').format('YYYY-MM-DD'),
+            locale: DATE_LOCAL_DAY
+        });
+        $('.dropdown-menu li').on('click', function () {
+            $('#sel_name').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            sel_choose = $(this).text();
+        });
+    });
+
+</script>
+</body>
+</html>

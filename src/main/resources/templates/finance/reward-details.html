@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>打赏明细</title>
+    <meta name="description" content="Flat UI Kit Free is a Twitter Bootstrap Framework design and Theme, this responsive framework includes a PSD and HTML version."/>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <link rel="stylesheet" href="/common/plugins/datepicker/datepicker3.css">
+</head>
+<body>
+<div class="wrapper">
+    <img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1><i class="fa fa-sheqel"></i>
+                打赏明细
+                <small>查看打赏列表</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 财务</a></li>
+                <li class="active">打赏明细</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section id="main" class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-info">
+                        <!-- /.box-header -->
+                        <div class="box-header">
+                            <h3 class="box-title"><i class="fa fa-filter"></i>筛选条件</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-3">
+                                    <label>用户ID:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="sel_id" class="btn btn-info dropdown-toggle" data-toggle="dropdown">打赏用户ID
+                                                <span class="fa fa-caret-down"></span></button>
+                                            <ul class="dropdown-menu" id="dropdown_menu">
+                                                <li class="li_menu"><a href="#">打赏用户ID</a></li>
+                                                <li class="li_menu"><a href="#">打赏用户昵称</a></li>
+                                            </ul>
+                                        </div>
+                                        <input type="text" id="txt_query" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-3">
+                                    <label>用户昵称:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="sel_name" class="btn btn-info dropdown-toggle" data-toggle="dropdown">受赏用户ID
+                                                <span class="fa fa-caret-down"></span></button>
+                                            <ul class="dropdown-menu">
+                                                <li class="li_name"><a href="#">受赏用户ID</a></li>
+                                                <li class="li_name"><a href="#">受赏用户昵称</a></li>
+                                            </ul>
+                                        </div>
+                                        <input type="text" id="txt_id" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-3 col-sm-4 col-xs-5">
+                                    <label><i class="fa fa-diamond">&nbsp;</i>打赏钻石数:</label>
+                                    <input type="text" id="txt_diamond" class="form-control" PLACEHOLDER="请输入钻石数：如：100，600">
+                                </div>
+                            </div>
+                            <div class="form-group"></div>
+                            <div class="row">
+
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-8">
+                                    <label><i class="fa fa-calendar-o">&nbsp;</i>筛选时间:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon">
+                                            <i class="fa fa-calendar"></i>
+                                        </div>
+                                        <input type="text" class="form-control pull-left" id="txt-date-range">
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="onSearch()"><i class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="reset_form()"><i class="fa fa-fw fa-refresh"></i>&nbsp;重&nbsp;&nbsp;置</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="firstDiv"></div>
+                    <div class="box box-success">
+                        <div class="box-header">
+                            <h3 class="box-title" style="">结果</h3>
+                        </div>
+                        <div class="box-body">
+                            <table id="dg-user" class="table table-bordered table-hover"
+                                   data-url="/finance/reward/list"
+                                   data-toolbar="#toolbar"
+                                   data-page-list="[10, 25, 50, 100, All]"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-query-params="getQueryParams"
+                                   data-toggle="table"
+                                   data-pagination="true"
+                                   data-side-pagination="server"
+                                   data-search="false"
+                                   data-show-export="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="rewardId"
+                                        data-th-align="center"
+                                        data-align="center">打赏用户ID
+                                    </th>
+                                    <th data-field="rewarNick"
+                                        data-th-align="center"
+                                        data-align="center">打赏用户昵称</th>
+                                    <th data-field="awardId"
+                                        data-th-align="center"
+                                        data-align="center">受赏用户ID</th>
+                                    <th data-field="awardNick"
+                                        data-th-align="center"
+                                        data-align="center">受赏用户昵称
+                                    </th>
+                                    <th data-field="diamonds"
+                                        data-th-align="center"
+                                        data-align="center">打赏钻石数</th>
+                                    <th data-field="beforeDiamond"
+                                        data-th-align="center"
+                                        data-align="center">打赏前钻石数
+                                    </th>
+                                    <th data-field="afterDiamond"
+                                        data-th-align="center"
+                                        data-align="center">打赏后钻石数
+                                    </th>
+                                    <th data-field="createTime"
+                                        data-th-align="center"
+                                        data-align="center">打赏时间
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div></div></div></div></section></div>
+</div>
+<script layout:fragment="scripts" th:inline="javascript">
+    var sel_choose='打赏用户ID';var sel_id='受赏用户ID';
+    //默认时间
+    var now=new Date();
+    var str = now.getFullYear()+"-"+((now.getMonth()+1)<10?"0":"")+(now.getMonth()+1)+"-"+(now.getDate()<10?"0":"")+now.getDate()
+    /**
+     * 查询用户信息
+     * */
+    function onSearch() {
+        var pageSize = $('#dg-user').bootstrapTable('getOptions')['pageSize'];
+        var queryParam = getQueryParams({'offset': 0, 'limit': pageSize});
+        $('#dg-user').bootstrapTable('refresh', {
+            'url': '/finance/reward/list',
+            'query': queryParam
+        });
+    }
+    /**
+     *
+     * 获取选择queryType
+     * */
+    function getParamQueryType(){
+        var queryType='rewardId';
+        if(sel_choose !=null){
+            switch(sel_choose){
+                case '打赏用户ID':
+                    queryType='rewardId';
+                    break;
+                case '打赏用户昵称':
+                    queryType='rewardNick';
+                    break;
+            }}
+        return queryType
+    }
+
+    /**
+     *
+     * 获取受赏
+     * */
+    function getParamAward(){
+        var awardType='awardId';
+        if(sel_id !=null){
+            switch(sel_id){
+                case '受赏用户Id':
+                    queryType='awardId';
+                    break;
+                case '受赏用户昵称':
+                    queryType='awardNick';
+                    break; }}
+        return awardType
+    }
+    /**
+     * 重置所有属性
+     * @param obj
+     * @returns {boolean}
+     */
+    function reset_form(){
+        $('#txt_query').val("");$('#txt_diamond').val("");$('#txt_id').val("");}
+
+    // 获取查询参数 type=1 onSearch内容 type=0 onOperation内容
+    function getQueryParams(params) {
+        var dateStart = $('#txt-date-range').val().split(" - ")[0];
+        var dateEnd = $('#txt-date-range').val().split(" - ")[1];
+        var input_reward = $('#txt_query').val();
+        var input_award = $('#txt_id').val();
+        var input_diamond = $('#txt_diamond').val();
+        if(dateStart==null||dateStart==''){
+            dateStart= str;
+            dateEnd=str;
+        }
+        if(input_reward!=null&&input_reward!=''){
+            params[getParamQueryType()] = input_reward;
+        }
+        if(input_award!=null&&input_award!=''){
+            params[getParamAward()] = input_award;
+        }
+        if(input_diamond!=null&&input_diamond!=''){
+            params['diamonds'] = input_diamond;
+        }
+        params['dateStart'] = dateStart;
+        params['dateEnd'] = dateEnd;
+        return params;
+    }
+
+
+    $(function () {
+        $('#txt-date-range').daterangepicker({
+            autoApply: true, maxDate: moment().format('YYYY-MM-DD'),
+            startDate: moment().subtract(0, 'days').format('YYYY-MM-DD'),
+            locale: DATE_LOCAL_DAY
+        });
+        $('.dropdown-menu .li_name').on('click', function () {
+            $('#sel_name').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            sel_choose = $(this).text();
+        });
+
+        $('.dropdown-menu .li_menu').on('click', function () {
+            $('#sel_id').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            sel_choose = $(this).text();
+        });
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eryu.mapper.FamilyMapper">
+    <!-- 查询家族的收益列表 -->
+    <select id="queryFamilyIncome" parameterType="com.eryu.core.entity.dto.params.FamilyParam" resultType="com.eryu.core.entity.dto.family.FamilyIncomDTO">
+        SELECT
+	      tf.NAME         AS familyName,
+          tf.AVATAR       AS familyPortrait ,
+          T_USER.ERYU_NO  AS patriarchId,
+          T_USER.USERNAME AS familyNick
+        FROM
+        `eryu-user`.T_FAMILY tf
+        LEFT JOIN `eryu-user`.T_USER ON T_USER.ID= tf.MASTER_ID
+        WHERE
+        1=1
+        <if test="familyName != null and familyName != ''">
+            AND tf.NAME LIKE CONCAT('%', #{familyName}, '%')
+        </if>
+        <if test="patriarchId != null and patriarchId != ''">
+            AND T_USER.ERYU_NO=#{patriarchId}
+        </if>
+        <if test="patriarchNick != null and patriarchNick != ''">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{patriarchNick}, '%')
+        </if>
+        ORDER BY tf.CREATE_TIME DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询家族的收益列表-数量 -->
+    <select id="queryFamilyIncomeCount" parameterType="com.eryu.core.entity.dto.params.FamilyParam" resultType="int">
+        SELECT
+            count(1)
+        FROM
+        `eryu-user`.T_FAMILY tf
+        LEFT JOIN `eryu-user`.T_USER ON T_USER.ID= tf.MASTER_ID
+        WHERE
+        1=1
+        <if test="familyName != null and familyName != ''">
+            AND tf.NAME =#{familyName}
+        </if>
+        <if test="patriarchId != null and patriarchId != ''">
+            AND T_USER.ERYU_NO=#{patriarchId}
+        </if>
+        <if test="patriarchNick != null and patriarchNick != ''">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{patriarchNick}, '%')
+        </if>
+    </select>
+    <!-- 查询家族的信息列表 -->
+    <select id="queryFamilyList" parameterType="com.eryu.core.entity.dto.params.FamilyParam" resultType="com.eryu.core.entity.dto.family.FamilyDTO">
+        SELECT
+            tf.id           AS familyId,
+            tf.NAME         AS familyName,
+            tf.AVATAR       AS familyPortrait,
+            T_USER.ERYU_NO  AS patriarchId,
+            T_USER.USERNAME AS familyNick,
+            T_USER.MOBILE   AS familyMoblie,
+            tf.STATUS       AS familyStatus,
+            tf.MEMBER_COUNT AS members,
+            tf.INTRODUCE    AS introduceFamily,
+            tf.PROPORTION   AS splitRate,
+            tf.MAX_MEMBER   AS maxMembers
+        FROM
+        `eryu-user`.T_FAMILY tf
+        LEFT JOIN `eryu-user`.T_USER ON T_USER.ID= tf.MASTER_ID
+        WHERE
+        1=1
+        <if test="familyName != null and familyName != ''">
+            AND tf.NAME =#{familyName}
+        </if>
+        <if test="patriarchId != null and patriarchId != ''">
+            AND T_USER.ERYU_NO=#{patriarchId}
+        </if>
+        <if test="patriarchNick != null and patriarchNick != ''">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{patriarchNick}, '%')
+        </if>
+        <if test="familyStatus != null and familyStatus != '' and familyStatus != 0">
+            AND tf.STATUS =#{familyStatus}
+        </if>
+        <if test="familyStatus == 0 or familyStatus == '0'">
+            AND tf.STATUS =0
+        </if>
+        ORDER BY tf.CREATE_TIME DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询家族的信息列表 -计数-->
+    <select id="queryFamilyListCount" parameterType="com.eryu.core.entity.dto.params.FamilyParam" resultType="int">
+        SELECT
+            count(1)
+        FROM
+        `eryu-user`.T_FAMILY tf
+        LEFT JOIN `eryu-user`.T_USER ON T_USER.ID= tf.MASTER_ID
+        WHERE
+        1=1
+        <if test="familyName != null and familyName != ''">
+            AND tf.NAME =#{familyName}
+        </if>
+        <if test="patriarchId != null and patriarchId != ''">
+            AND T_USER.ERYU_NO=#{patriarchId}
+        </if>
+        <if test="patriarchNick != null and patriarchNick != ''">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{patriarchNick}, '%')
+        </if>
+        <if test="familyStatus != null and familyStatus != ''">
+            AND tf.STATUS =#{familyStatus}
+        </if>
+    </select>
+    <!-- 查询家族成员的信息列表-->
+    <select id="queryFamilyMemberList" parameterType="com.eryu.core.entity.dto.params.FamilyParam"  resultType="com.eryu.core.entity.dto.family.FamilyMembersDTO">
+        SELECT
+            tu.USERNAME     AS memberNick,
+            tu.ERYU_NO      AS memberId,
+            tfm.ROLE        AS memberIdentity,
+            tfm.CREATE_TIME AS create_time
+        FROM
+        `eryu-user`.T_FAMILY_MEMBER tfm
+        LEFT JOIN `eryu-user`.T_USER tu ON tu.id= tfm.user_id
+        WHERE
+        1=1
+        <if test="familyId != null and familyId != ''">
+            AND tfm.FAMILY_ID =#{familyId}
+        </if>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询家族成员的信息列表-总数-->
+    <select id="queryFamilyMemberCount" resultType="int">
+        SELECT
+            count(1)
+        FROM
+        `eryu-user`.T_FAMILY_MEMBER tfm
+        LEFT JOIN `eryu-user`.T_USER tu ON tu.id= tfm.user_id
+        WHERE
+        1=1
+        <if test="familyId != null and familyId != ''">
+            AND tfm.FAMILY_ID =#{familyId}
+        </if>
+    </select>
+    <!-- 查询家族成员的信息列表-总数-->
+    <select id="getMasterId" resultType="String">
+        SELECT ID FROM `eryu-user`.T_USER WHERE MOBILE=#{mobile}
+    </select>
+    <!-- 添加家族-->
+    <insert id="addFamily" parameterType="com.eryu.core.entity.dto.params.FamilyParam">
+        INSERT INTO `eryu-user`.`T_FAMILY` (
+            `ID`,
+            `CREATE_TIME`,
+            `UPDATE_TIME`,
+            `VERSION`,
+            `AVATAR`,
+            `INTRODUCE`,
+            `NAME`,
+            `STATUS`,
+            `MASTER_ID`,
+             MAX_MEMBER
+        )
+        VALUES
+            (
+                #{familyId},
+                NOW(),
+                NOW(),
+                1,
+                #{familyPortrait},
+                #{introduceFamily},
+                #{familyName},
+                '1',
+                #{patriarchId},
+                #{maxPerson}
+            );
+    </insert>
+    <!-- 添加家族成员-->
+    <insert id="addFamilyMember" parameterType="com.eryu.core.entity.dto.params.FamilyParam">
+         INSERT INTO `eryu-user`.`T_FAMILY_MEMBER` (
+            `ID`,
+            `CREATE_TIME`,
+            `UPDATE_TIME`,
+            `VERSION`,
+            `ROLE`,
+            `FAMILY_ID`,
+            `USER_ID`
+            )
+            VALUES
+            (
+                UUID_SHORT(),
+                NOW(),
+                NOW(),
+                1,
+                #{familyRole},
+                #{familyId},
+                #{patriarchId}
+            );
+    </insert>
+</mapper>

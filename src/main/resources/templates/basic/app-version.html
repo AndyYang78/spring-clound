@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>APP版本信息管理</title>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script type="text/javascript" id="asdf" th:src="@{/content/basic/app-version.js}"></script>
+</head>
+<body>
+<div class="content-wrapper" layout:fragment="content">
+    <!--<img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>-->
+    <section class="content-header">
+        <h1><i class="fa fa-tags">&nbsp;</i>APP版本信息管理</h1>
+    </section>
+
+    <section class="content">
+        <!--  -->
+        <div class="box box-default div_table_content">
+            <div class="box-header">
+                <i class="fa fa-list"></i>
+                <h4 class="box-title">APP版本列表</h4>
+            </div>
+            <div class="box-body">
+                <div id="toolbar">
+                    <a class="btn btn-success" data-toggle="modal" data-target="#modal"><i class="fa fa-fw fa-plus"></i>新增版本</a>
+                    <a class="btn btn-info" data-toggle="modal_update" onclick="updateModel()"><i class="fa fa-fw fa-wrench"></i>修改版本</a>
+                </div>
+                <table class="table table-bordered table-hover table_main" id="table_main"
+                       data-url="/content/app/version/list"
+                       data-toolbar="#toolbar"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-toggle="table"
+                       data-pagination="true"
+                       data-single-select="true"
+                       data-click-to-select="true"
+                       data-select-item-name="radioName"
+                       data-checkbox-header="true"
+                       data-search="false">
+                    <thead>
+                    <tr>
+                        <th data-radio="true" data-click-to-select="true"></th>
+                        <th data-halign="center" data-align="center" data-visible="false" data-field="id">ID</th>
+                        <th data-halign="center" data-align="left" data-field="name">版本名称</th>
+                        <!--<th data-halign="center" data-align="center" data-field="autoIndex">自增长号</th>-->
+                        <th data-halign="center" data-align="left" data-field="description">更新描述</th>
+                        <th data-halign="center" data-align="left" data-field="os">操作系统</th>
+                        <th data-halign="center" data-align="left" data-field="versionNumber">版本号</th>
+                        <th data-halign="center" data-align="left" data-field="versionState" data-formatter="appVersionStatus">版本状态</th>
+                        <th data-halign="center" data-align="center" data-formatter="formatBool" data-field="forceUpdate">是否强制更新</th>
+                        <th data-halign="center" data-align="center" data-field="createTime">创建时间</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 添加APP版本信息控制 -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">新增版本</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal" id="form_main">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">版本名称</label>
+                            <div class="col-sm-9">
+                                <input class="hide" id="input_id">
+                                <input type="text" class="form-control" id="input_name" placeholder="输入版本名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_version_number" class="col-sm-3 control-label">版本号</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_version_number" placeholder="对应APK的版本号">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_os" class="col-sm-3 control-label">操作系统</label>
+                            <div class="col-sm-9">
+                                <select id="input_os" style="width: 100%">
+                                    <option value="Android">Android</option>
+                                    <option value="iOS">iOS</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_version_state" class="col-sm-3 control-label">版本状态</label>
+                            <div class="col-sm-9">
+                                <select id="input_version_state" style="width: 100%">
+                                    <option value="TEST">测试</option>
+                                    <option value="INREVIEW">提审</option>
+                                    <option value="PRODUCT">生产</option>
+                                    <option value="OVERDUE">过期</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_description" class="col-sm-3 control-label">更新描述</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_description" placeholder="输入更新描述">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_force" class="col-sm-3 control-label">是否强制更新</label>
+                            <div class="col-sm-9">
+                                否<input type="radio" name="input_force" value="false" checked="checked">&nbsp;
+                                是<input type="radio" name="input_force" value="true">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commit()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 修改APP版本信息控制 -->
+    <div class="modal fade" id="modal_update" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">修改版本</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal" id="form_main">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">版本名称</label>
+                            <div class="col-sm-9">
+                                <input class="hide" id="input_id">
+                                <input type="text" class="form-control" id="update_name" placeholder="输入版本名称" disabled>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_version_number" class="col-sm-3 control-label">版本号</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="update_version_number" placeholder="对应APK的版本号">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_os" class="col-sm-3 control-label">操作系统</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="update_os" placeholder="对应APK的系统">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_version_state" class="col-sm-3 control-label">版本状态</label>
+                            <div class="col-sm-9">
+                                <select id="update_version_state" style="width: 100%">
+                                    <option value="TEST">测试</option>
+                                    <option value="INREVIEW">提审</option>
+                                    <option value="PRODUCT">生产</option>
+                                    <option value="OVERDUE">过期</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_description" class="col-sm-3 control-label">更新描述</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="update_description" placeholder="输入更新描述">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_force" class="col-sm-3 control-label">是否强制更新</label>
+                            <div class="col-sm-9">
+                                否<input type="radio" name="input_forces" value="false" id="true_checked">&nbsp;
+                                是<input type="radio" name="input_forces" value="true" id="false_checked">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="update()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

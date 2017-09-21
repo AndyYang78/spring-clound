@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>偏好</title>
+    <link rel="stylesheet" href="/content/content/express-company.css"/>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script type="text/javascript" id="asdf" th:src="@{/content/system/custom.js}"></script>
+</head>
+<body>
+<div class="content-wrapper" layout:fragment="content">
+    <!--<img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>-->
+    <section class="content-header">
+        <h1><i class="fa fa-tags">&nbsp;</i>偏好管理</h1>
+    </section>
+
+    <section class="content">
+        <div class="box box-default div_table_content">
+            <div class="box-header">
+                <i class="fa fa-list"></i>
+                <h4 class="box-title">偏好列表</h4>
+            </div>
+            <div class="box-body">
+                <div id="toolbar">
+                    <a class="btn btn-success" data-toggle="modal" onclick="toAdd()"><i class="fa fa-fw fa-plus"></i>添加</a>
+                </div>
+                <table class="table table-bordered table-hover table_main" id="table_main"
+                       data-url="/content/system/custom/list"
+                       data-toolbar="#toolbar"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-toggle="table"
+                       data-pagination="true"
+                       data-search="false">
+                    <thead>
+                    <tr>
+                        <th data-halign="center" data-align="center" data-visible="false" data-field="id">ID</th>
+                        <th data-halign="center" data-align="center" data-field="name">名称</th>
+                        <th data-halign="center" data-align="center" data-field="code">代码</th>
+                        <th data-halign="center" data-align="center" data-field="mcode">助记码</th>
+                        <th data-halign="center" data-align="center" data-field="shortName">简称</th>
+                        <th data-halign="center" data-align="center" data-field="createTime">创建时间</th>
+                        <th data-halign="center" data-align="center" data-field="updateTime">更新时间</th>
+                        <th data-halign="center" data-align="center" data-formatter="operation" data-field="id" data-events="operateEvents">操作</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 添加类型 -->
+    <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">添加偏好</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">名称</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_name" placeholder="输入名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_code" class="col-sm-3 control-label">代码</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_code" placeholder="输入代码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_mCode" class="col-sm-3 control-label">助记码</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_mCode" placeholder="输入助记码">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_shortName" class="col-sm-3 control-label">简称</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_shortName" placeholder="输入简称">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commitAdd()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 编辑类型 -->
+    <div class="modal fade" id="modal_edit" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">编辑偏好</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">名称</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control hide" disabled="disabled" id="input_edit_id">
+                                <input type="text" class="form-control" id="input_edit_name" placeholder="输入类型名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_code" class="col-sm-3 control-label">代码</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_edit_code" placeholder="输入类型名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_mCode" class="col-sm-3 control-label">助记码</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_edit_mCode" placeholder="输入类型名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_shortName" class="col-sm-3 control-label">简称</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_edit_shortName" placeholder="输入类型名称">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commitUpdate()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

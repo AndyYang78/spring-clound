@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>权限</title>
+    <link rel="stylesheet" href="/common/plugins/bootstrap-treeview/bootstrap-treeview.min.css">
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script src="/common/plugins/bootstrap-treeview/bootstrap-treeview.min.js"></script>
+    <script type="text/javascript" th:src="@{/content/system/privilege.js}"></script>
+</head>
+<body>
+<div class="content-wrapper" layout:fragment="content">
+    <!--<img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>-->
+    <section class="content-header">
+        <h1><i class="fa fa-tags">&nbsp;</i>权限管理</h1>
+    </section>
+
+    <section class="content">
+        <div class="box box-default div_table_content">
+            <div class="box-header">
+                <i class="fa fa-list"></i>
+                <h4 class="box-title">权限列表</h4>
+            </div>
+            <div class="box-body">
+                <div id="toolbar">
+                    <a class="btn btn-info" title="展开全部节点" data-toggle="tooltip" onclick="expandAll()"><i class="fa fa-fw fa-arrow-down"></i></a>
+                    <a class="btn btn-warning" title="收起全部节点" data-toggle="tooltip" onclick="collapseAll()"><i class="fa fa-fw fa-arrow-up"></i></a>
+                    <a class="btn btn-success hide" title="取消勾选的权限将不可用，用户重新登录生效" data-toggle="tooltip" data-placement="top" onclick="save()"><i class="fa fa-fw fa-save"></i>保存</a>
+                    <a class="btn btn-success" style="display: none" id="btn_open" onclick="checkAll()"><i class="fa fa-fw fa-plus"></i>启用权限</a>
+                    <a class="btn btn-success" style="display: none" id="btn_close" onclick="expandAll()"><i class="fa fa-fw fa-plus"></i>停用权限</a>
+                    <a class="btn btn-success" title="展开全部节点" data-toggle="tooltip" onclick="toAdd()"><i class="fa fa-fw fa-plus"></i>&nbsp;添加</a>
+                </div>
+                <div id="tree" style=" margin-top: 16px;"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 添加 -->
+    <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">添加权限</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-2 control-label">名称</label>
+                            <div class="col-sm-9">
+                                <input class="hide" id="input_id">
+                                <input type="text" title="权限名称" class="form-control" id="input_name" placeholder="输入权限名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_model" title="对应左侧顶级菜单，若已选父权限，则自动使用父权限的模块" data-toggle="tooltip" class="col-sm-2 control-label">模块</label>
+                            <div class="col-sm-9">
+                                <input type="text" title="对应左侧顶级菜单，若已选父权限，则自动使用父权限的模块" data-toggle="tooltip" class="form-control" id="input_model" placeholder="对应左侧顶级菜单，若已选父权限，则自动使用父权限的模块">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_page" title="对应左侧子菜单，若为顶级菜单则不填" data-toggle="tooltip" class="col-sm-2 control-label">页面</label>
+                            <div class="col-sm-9">
+                                <input type="text" title="对应左侧子菜单，若为顶级菜单则不填" data-toggle="tooltip" class="form-control" id="input_page" placeholder="对应左侧子菜单，若为顶级菜单则不填">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_point" title="对应页面的增删查改按钮，没有则可不填" data-toggle="tooltip" class="col-sm-2 control-label">功能点</label>
+                            <div class="col-sm-9">
+                                <input type="text" title="对应页面的增删查改按钮，没有则可不填" data-toggle="tooltip" class="form-control" id="input_point" placeholder="对应页面的增删查改按钮，没有则可不填">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="div_tree_add" title="父级菜单/页面，不填默认为根权限（菜单）" data-toggle="tooltip" class="col-sm-2 control-label">父权限</label>
+                            <div class="col-sm-9">
+                                <input class="hide" id="input_parent_id">
+                                <input type="text" title="父级菜单/页面，不填默认为根权限（菜单）" data-toggle="tooltip" class="form-control" id="input_parent_name" placeholder="父级菜单/页面，不填默认为根权限（菜单）">
+                            </div>
+                            <div id="div_tree_add" class="col-sm-9 col-md-offset-2" style=" margin-top: 16px;"></div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer" style="padding-right: 100px;">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commit()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

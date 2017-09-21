@@ -1,0 +1,535 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eryu.mapper.UserMapper">
+    <!-- 查询用户详细信息 -->
+    <select id="queryUserMessage" parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="com.eryu.core.entity.dto.user.UserDTO">
+        SELECT
+        T_USER.ID           AS id,
+        T_USER.CREATE_TIME  AS create_time,
+        T_USER.BLOCK_TIME   AS frozen_time,
+        T_USER.APP_VERSION  AS app_version,
+        AVATAR              AS avatar,
+        BIRTHDAY            AS birthday,
+        GENDER              AS gender,
+        HAS_PASSWORD        AS has_password,
+        ID_CARD             AS id_card,
+        MOBILE              AS mobile,
+        DATEDIFF(CURRENT_DATE(),T_USER.CREATE_TIME) AS grow_day,
+        NAME                AS name,
+        OCCUPATION          AS occupation,
+        SCHOOL              AS school,
+        PROFILE_IMG         AS profile_img,
+        PHONE_DEVICE        AS phone_device,
+        SIGNATURE           AS signa,
+        T_USER.STATUS       AS status,
+        t1.STATUS           AS accountStatus,
+        UDID                AS udid,
+        ERYU_NO             AS eryu_no,
+        t1.vip              AS vip,
+        USERNAME            AS user_name,
+        T_USER.FAMOUS       AS isNet,
+        T_USER.CITY         AS city,
+        T_USER.NETEASE_STATUS            AS isNetease,
+        t1.ACCUMULATIVE_RECHARGE_DIAMOND AS rechargeDiamonds,
+        t1.ACCUMULATIVE_CONSUME_DIAMOND  AS tradeDiamonds,
+        t1.ACCUMULATIVE_WITHDRAW_CRYSTAL AS incomeDiamonds,
+        t1.ACCUMULATIVE_WITHDRAW_AMOUNT  AS incomeAmount,
+        T_LOGIN.loginTime                AS loginTime,
+        CASE WHEN  LENGTH(T_USER.ID_CARD)>1 THEN 1 ELSE 0 END AS isIdentity
+        FROM
+        `eryu-user`.T_USER
+        LEFT JOIN(
+        SELECT
+        t1.STATUS,
+        t1.USER_ID,
+        t1.ACCUMULATIVE_RECHARGE_DIAMOND,
+        t1.ACCUMULATIVE_CONSUME_DIAMOND,
+        t1.ACCUMULATIVE_WITHDRAW_CRYSTAL,
+        t1.ACCUMULATIVE_WITHDRAW_AMOUNT,
+        CASE
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 100000 AND 499900 THEN 'vip1'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN  500000 AND 999900 THEN 'vip2'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 1000000 AND 2999900 THEN 'vip3'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 3000000 AND 5999900 THEN 'vip4'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 6000000 AND 11999900 THEN 'vip5'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 12000000 AND 23999900 THEN 'vip6'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND >=24000000 THEN 'vip7'
+        ELSE 'vip0' END    AS vip
+        FROM `eryu-trade`.T_ACCOUNT t1
+        )  t1 ON T_USER.ID= t1.USER_ID
+        LEFT JOIN (
+        SELECT
+        T_LOGIN.USER_ID,
+        MAX(T_LOGIN.CREATE_TIME) AS loginTime
+        FROM `eryu-user`.T_LOGIN
+        GROUP BY USER_ID
+        )T_LOGIN ON T_USER.ID= T_LOGIN.USER_ID
+        WHERE
+        1=1
+        <if test="dateStart != null and dateEnd != null" >
+            AND <![CDATA[ T_USER.CREATE_TIME>=#{dateStart} AND T_USER.CREATE_TIME<=#{dateEnd}]]>
+        </if>
+        <if test="mobile != null">
+            AND T_USER.MOBILE=#{mobile}
+        </if>
+        <if test="nickname != null">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="erNo != null">
+            AND T_USER.ERYU_NO=#{erNo}
+        </if>
+        <if test="device != null and device !=''">
+            AND T_USER.OS=#{device}
+        </if>
+        <if test="is_auth != null and is_auth !=''">
+            AND T_USER.ZHIMA_AUTHED=#{is_auth}
+        </if>
+        <if test="gender != null and gender > -1">
+            AND T_USER.GENDER=#{gender}
+        </if>
+        <if test="status != null and status > -1">
+            AND T_USER.STATUS=#{status}
+        </if>
+        <if test="isNet != null and isNet > -1">
+            AND T_USER.FAMOUS=#{isNet}
+        </if>
+        <if test="isNetease != null and isNetease > -1">
+            AND T_USER.NETEASE_STATUS=#{isNetease}
+        </if>
+        <if test="vips!=null">
+            AND t1.vip in
+            <foreach item="item" index="index" collection="vips" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        ORDER BY T_USER.CREATE_TIME DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <!-- 获取用户的爱好数据-->
+    <select id="queryUserHobby"  resultType="String">
+        SELECT
+        `eryu-user`.T_HOBBY.`NAME`
+        FROM
+        `eryu-user`.T_USER_HOBBY
+        LEFT JOIN `eryu-user`.T_HOBBY on T_USER_HOBBY.HOBBY_ID = T_HOBBY.ID
+        WHERE 1=1
+        AND `eryu-user`.T_USER_HOBBY.USER_ID=#{userId}
+    </select>
+    <!-- 查询用户的数量-->
+    <select id="queryUserCount"  parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="int">
+        SELECT
+        count(1)
+        FROM
+        `eryu-user`.T_USER
+        LEFT JOIN(
+        SELECT
+        t1.STATUS,
+        t1.USER_ID,
+        CASE
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 100000 AND 499900 THEN 'vip1'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN  500000 AND 999900 THEN 'vip2'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 1000000 AND 2999900 THEN 'vip3'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 3000000 AND 5999900 THEN 'vip4'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 6000000 AND 11999900 THEN 'vip5'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 12000000 AND 23999900 THEN 'vip6'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND >=24000000 THEN 'vip7'
+        ELSE 'vip0' END    AS vip
+        FROM `eryu-trade`.T_ACCOUNT t1
+        )  t1 ON T_USER.ID= t1.USER_ID
+        WHERE
+        1=1
+        <if test="dateStart != null and dateEnd != null" >
+            AND <![CDATA[ T_USER.CREATE_TIME>=#{dateStart} AND T_USER.CREATE_TIME<=#{dateEnd} ]]>
+        </if>
+        <if test="mobile != null">
+            AND T_USER.MOBILE=#{mobile}
+        </if>
+        <if test="nickname != null">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="erNo != null">
+            AND T_USER.ERYU_NO=#{erNo}
+        </if>
+        <if test="device != null and device !=''">
+            AND T_USER.OS=#{device}
+        </if>
+        <if test="is_auth != null and is_auth !=''">
+            AND T_USER.ZHIMA_AUTHED=#{is_auth}
+        </if>
+        <if test="gender != null and gender > -1">
+            AND T_USER.GENDER=#{gender}
+        </if>
+        <if test="status != null and status > -1">
+            AND T_USER.STATUS=#{status}
+        </if>
+        <if test="isNet != null and isNet > -1">
+            AND T_USER.FAMOUS=#{isNet}
+        </if>
+        <if test="isNetease != null and isNetease > -1">
+            AND T_USER.NETEASE_STATUS=#{isNetease}
+        </if>
+        <if test="vips!=null">
+            AND t1.vip in
+            <foreach item="item" index="index" collection="vips" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+    <!-- 更新用户的状态-->
+    <update id="updateUserStatus">
+        UPDATE T_USER
+        LEFT JOIN `eryu-trade`.T_ACCOUNT t1 ON T_USER.ID= t1.USER_ID
+        SET T_USER.STATUS = #{user_status},
+        T_USER.UPDATE_TIME= NOW(),
+        T_USER.VERSION = T_USER.VERSION+1
+        WHERE T_USER.ERYU_NO=#{eryuNo}
+    </update>
+    <!-- 更新用户的账户状态-->
+    <update id="updateAccountStatus">
+        UPDATE T_USER
+        LEFT JOIN `eryu-trade`.T_ACCOUNT t1 ON T_USER.ID= t1.USER_ID
+        SET
+        t1.STATUS= #{account_status},
+        t1.VERSION= t1.VERSION+1,
+        t1.UPDATE_TIME = NOW()
+        WHERE T_USER.ERYU_NO=#{eryuNo}
+    </update>
+    <!-- 查询用户的验证码列表-->
+    <select id="queryCodeMobile"  resultType="com.eryu.core.entity.dto.user.UserMobileCodeDTO">
+        SELECT
+        `CREATE_TIME` AS create_time,
+        `CODE`        AS code,
+        `MOBILE`      AS mobile,
+        `TYPE`        AS codeName,
+        VERIFIED      AS code_status
+        FROM
+        `eryu-user`.T_VERIFICATION
+        WHERE
+        1=1
+        <if test="mobile != null and mobile != ''">
+            AND `eryu-user`.T_VERIFICATION.MOBILE=#{mobile}
+        </if>
+        ORDER BY CREATE_TIME DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询用户的验证码列表-->
+    <select id="queryCodeMobileCount"  resultType="int">
+        SELECT
+        count(1)
+        FROM
+        `eryu-user`.T_VERIFICATION
+        WHERE
+        1=1
+        <if test="mobile != null and mobile != ''">
+            AND `eryu-user`.T_VERIFICATION.MOBILE=#{mobile}
+        </if>
+    </select>
+    <!-- 查询用户的反馈的信息-->
+    <select id="queryUserReport"  parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="com.eryu.core.entity.dto.user.UserReportDTO">
+        SELECT
+        T_FEEDBACK.id       AS udid,
+        MOBILE              AS mobile,
+        NAME                AS userName,
+        ERYU_NO             AS eryu_no,
+        USERNAME            AS nickName,
+        T_FEEDBACK.CONTENT  AS content,
+        T_FEEDBACK.DEVICE   AS phone_device,
+        T_FEEDBACK.CREATE_TIME AS create_time,
+        T_FEEDBACK.USER_ID  AS userId,
+        T_FEEDBACK.STATUS   AS dealStatues
+        FROM
+        `eryu-user`.T_FEEDBACK
+        LEFT JOIN `eryu-user`.T_USER ON T_USER.ID = T_FEEDBACK.USER_ID
+        WHERE
+        1=1
+        <if test="dateStart != null and dateEnd != null" >
+            AND <![CDATA[ T_FEEDBACK.CREATE_TIME>=#{dateStart} AND T_FEEDBACK.CREATE_TIME<=#{dateEnd} ]]>
+        </if>
+        <if test="mobile != null and mobile != ''">
+            AND T_USER.MOBILE=#{mobile}
+        </if>
+        <if test="nickname != null and nickname != ''">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="erNo != null and erNo != ''">
+            AND T_USER.ERYU_NO=#{erNo}
+        </if>
+        <if test="name != null and name!= ''">
+            AND T_USER.NAME LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="dealStatus != null and dealStatus!= ''">
+            AND T_FEEDBACK.STATUS =#{dealStatus}
+        </if>
+        ORDER BY T_FEEDBACK.CREATE_TIME DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询用户的反馈的信息-->
+    <select id="queryUserReportUrl" resultType="String">
+        SELECT
+        URL
+        FROM
+        `eryu-user`.T_FEEDBACK_ATTACHMENT
+        WHERE
+        1=1
+        AND T_FEEDBACK_ATTACHMENT.FEEDBACK_ID=#{id}
+    </select>
+    <!-- 查询用户的反馈的信息 -计数-->
+    <select id="queryUserReportCount"  parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="int">
+        SELECT
+        COUNT(1)
+        FROM
+        `eryu-user`.T_FEEDBACK
+        LEFT JOIN `eryu-user`.T_USER ON T_USER.ID = T_FEEDBACK.USER_ID
+        WHERE
+        1=1
+        <if test="dateStart != null and dateEnd != null" >
+            AND <![CDATA[ T_FEEDBACK.CREATE_TIME>=#{dateStart} AND T_FEEDBACK.CREATE_TIME<=#{dateEnd} ]]>
+        </if>
+        <if test="mobile != null and mobile != ''">
+            AND T_USER.MOBILE=#{mobile}
+        </if>
+        <if test="nickname != null and nickname != ''">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="erNo != null and erNo != ''">
+            AND T_USER.ERYU_NO=#{erNo}
+        </if>
+        <if test="name != null and name!= ''">
+            AND T_USER.NAME LIKE CONCAT('%', #{name}, '%')
+        </if>
+        <if test="dealStatus != null and dealStatus!= ''">
+            AND T_FEEDBACK.STATUS =#{dealStatus}
+        </if>
+    </select>
+    <!-- 查询用户的账户的明细信息-->
+    <select id="queryUserAccountList"  parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="com.eryu.core.entity.dto.user.UserAccountDetailDTO">
+        SELECT
+        tu.ERYU_NO       AS userNo,
+        tu.USERNAME      AS userNick,
+        ttf.INCOME       AS type,
+        CONCAT(ttf.TRADE_TYPE,'-',ttf.BIZ_TYPE)    AS tradeType,
+        CASE WHEN ttf.INCOME =1 THEN ttf.DIAMOND ELSE (-1)*ttf.DIAMOND END  AS tradeDiamond,
+        CASE WHEN ttf.INCOME =1 THEN ttf.CRYSTAL ELSE (-1)*ttf.CRYSTAL END AS tradeCrystal,
+        ttf.AMOUNT       AS withdrawalCash,
+        ttf.CREATE_TIME  AS createTime
+        FROM
+        `eryu-trade`.T_TRADE_FLOW ttf
+        LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = ttf.USER_ID
+        WHERE
+        1=1
+        AND ttf.STATUS =1
+        <if test="dateStart != null and dateEnd != null" >
+            AND <![CDATA[ ttf.CREATE_TIME>=#{dateStart} AND ttf.CREATE_TIME<=#{dateEnd} ]]>
+        </if>
+        <if test="erNo != null and erNo != ''">
+            AND tu.ERYU_NO=#{erNo}
+        </if>
+        <if test="nickname != null and nickname != ''">
+            AND tu.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="orderId != null and orderId != ''">
+            AND ttf.ID=#{orderId}
+        </if>
+        <if test="tradeType != null and tradeType != ''">
+            AND ttf.TRADE_TYPE=#{tradeType}
+        </if>
+        ORDER BY ttf.CREATE_TIME DESC
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询用户的账户的明细信息-计数-->
+    <select id="queryUserAccountCount"  parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="int">
+        SELECT
+        COUNT(1)
+        FROM
+        `eryu-trade`.T_TRADE_FLOW ttf
+        LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = ttf.USER_ID
+        WHERE
+        1=1
+        AND ttf.STATUS =1
+        <if test="dateStart != null and dateEnd != null" >
+            AND <![CDATA[ ttf.CREATE_TIME>=#{dateStart} AND ttf.CREATE_TIME<=#{dateEnd} ]]>
+        </if>
+        <if test="erNo != null and erNo != ''">
+            AND tu.ERYU_NO=#{erNo}
+        </if>
+        <if test="nickname != null and nickname != ''">
+            AND tu.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="orderId != null and orderId != ''">
+            AND ttf.ID=#{orderId}
+        </if>
+        <if test="tradeType != null and tradeType != ''">
+            AND ttf.TRADE_TYPE=#{tradeType}
+        </if>
+    </select>
+    <!-- 查询用户要审核的头像列表数据 -->
+    <select id="queryUserAuditImageList" parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="com.eryu.core.entity.dto.user.UserAuditImageDTO">
+        SELECT
+        *
+        FROM(
+        SELECT
+        T_USER.ID           AS id,
+        T_USER.CREATE_TIME,
+        T_USER.ERYU_NO,
+        T_USER.USERNAME,
+        T_USER.AVATAR_UPDATE_TIME AS change_time,
+        T_USER.AVATAR_STATUS AS imageStatus,
+        'AVATAR'            AS type,
+        AVATAR              AS avatar,
+        MOBILE              AS mobile,
+        T_USER.STATUS       AS status,
+        USERNAME            AS user_name
+        FROM
+        `eryu-user`.T_USER
+        WHERE 1=1
+        AND LENGTH(T_USER.AVATAR)>1
+        AND LENGTH(T_USER.AVATAR_UPDATE_TIME)!=0
+        UNION
+        SELECT
+        T_USER.ID           AS id,
+        T_USER.CREATE_TIME,
+        T_USER.ERYU_NO,
+        T_USER.USERNAME,
+        T_USER.COVER_UPDATE_TIME AS change_time,
+        T_USER.COVER_STATUS AS imageStatus,
+        'PROFILE_IMG'       AS type,
+        PROFILE_IMG         AS avatar,
+        MOBILE              AS mobile,
+        T_USER.STATUS       AS status,
+        USERNAME            AS user_name
+        FROM
+        `eryu-user`.T_USER
+        WHERE 1=1
+        AND LENGTH(T_USER.PROFILE_IMG)>1
+        AND LENGTH(T_USER.COVER_UPDATE_TIME )!=0) T_USER
+        JOIN(
+        SELECT
+        t1.USER_ID,
+        CASE
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 100000 AND 499900 THEN 'vip1'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN  500000 AND 999900 THEN 'vip2'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 1000000 AND 2999900 THEN 'vip3'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 3000000 AND 5999900 THEN 'vip4'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 6000000 AND 11999900 THEN 'vip5'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 12000000 AND 23999900 THEN 'vip6'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND >=24000000 THEN 'vip7'
+        ELSE 'vip0' END    AS vip
+        FROM `eryu-trade`.T_ACCOUNT t1
+        )t1 ON T_USER.ID= t1.USER_ID
+        WHERE
+        1=1
+        <if test="dateStart != null and dateEnd != null and dateStart != '' and dateEnd !=''" >
+            AND <![CDATA[ T_USER.CREATE_TIME>=#{dateStart} AND T_USER.CREATE_TIME<=#{dateEnd}]]>
+        </if>
+        <if test="mobile != null and mobile !=''">
+            AND T_USER.MOBILE=#{mobile}
+        </if>
+        <if test="nickname != null and nickname !=''">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="erNo != null and erNo !=''">
+            AND T_USER.ERYU_NO=#{erNo}
+        </if>
+        <if test="status != null and status > -1">
+            AND T_USER.STATUS=#{status}
+        </if>
+        <if test="sourceStatus != null and sourceStatus !=''">
+            AND T_USER.type=#{sourceStatus}
+        </if>
+        <if test="vips!=null">
+            AND t1.vip in
+            <foreach item="item" index="index" collection="vips" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+
+    <!-- 查询用户要审核的头像列表数据-计数 -->
+    <select id="queryUserAuditImageCount" parameterType="com.eryu.core.entity.dto.params.UserParams" resultType="int">
+        SELECT
+        count(1)
+        FROM(
+        SELECT
+        T_USER.ID           AS id,
+        T_USER.CREATE_TIME,
+        T_USER.ERYU_NO,
+        T_USER.USERNAME,
+        T_USER.AVATAR_UPDATE_TIME AS change_time,
+        T_USER.AVATAR_STATUS AS imageStatus,
+        'avatar'            AS type,
+        AVATAR              AS avatar,
+        MOBILE              AS mobile,
+        T_USER.STATUS       AS status,
+        USERNAME            AS user_name
+        FROM
+        `eryu-user`.T_USER
+        WHERE 1=1
+        AND LENGTH(T_USER.AVATAR)>1
+        AND LENGTH(T_USER.AVATAR_UPDATE_TIME)!=0
+        UNION
+        SELECT
+        T_USER.ID           AS id,
+        T_USER.CREATE_TIME,
+        T_USER.ERYU_NO,
+        T_USER.USERNAME,
+        T_USER.COVER_UPDATE_TIME AS change_time,
+        T_USER.COVER_STATUS AS imageStatus,
+        'PROFILE_IMG'       AS type,
+        PROFILE_IMG         AS avatar,
+        MOBILE              AS mobile,
+        T_USER.STATUS       AS status,
+        USERNAME            AS user_name
+        FROM
+        `eryu-user`.T_USER
+        WHERE 1=1
+        AND LENGTH(T_USER.PROFILE_IMG)>1
+        AND LENGTH(T_USER.COVER_UPDATE_TIME)!=0) T_USER
+        JOIN(
+        SELECT
+        t1.USER_ID,
+        CASE
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 100000 AND 499900 THEN 'vip1'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN  500000 AND 999900 THEN 'vip2'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 1000000 AND 2999900 THEN 'vip3'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 3000000 AND 5999900 THEN 'vip4'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 6000000 AND 11999900 THEN 'vip5'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND BETWEEN 12000000 AND 23999900 THEN 'vip6'
+        WHEN t1.ACCUMULATIVE_CONSUME_DIAMOND >=24000000 THEN 'vip7'
+        ELSE 'vip0' END    AS vip
+        FROM `eryu-trade`.T_ACCOUNT t1
+        )t1 ON T_USER.ID= t1.USER_ID
+        WHERE
+        1=1
+        <if test="dateStart != null and dateEnd != null and dateStart != '' and dateEnd !=''" >
+            AND <![CDATA[ T_USER.CREATE_TIME>=#{dateStart} AND T_USER.CREATE_TIME<=#{dateEnd}]]>
+        </if>
+        <if test="mobile != null">
+            AND T_USER.MOBILE=#{mobile}
+        </if>
+        <if test="nickname != null">
+            AND T_USER.USERNAME LIKE CONCAT('%', #{nickname}, '%')
+        </if>
+        <if test="erNo != null">
+            AND T_USER.ERYU_NO=#{erNo}
+        </if>
+        <if test="status != null and status > -1">
+            AND T_USER.STATUS=#{status}
+        </if>
+        <if test="sourceStatus != null and sourceStatus !=''">
+            AND T_USER.type=#{sourceStatus}
+        </if>
+        <if test="vips!=null">
+            AND t1.vip in
+            <foreach item="item" index="index" collection="vips" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

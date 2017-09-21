@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>充值订单</title>
+    <meta name="description" content="Flat UI Kit Free is a Twitter Bootstrap Framework design and Theme, this responsive framework includes a PSD and HTML version."/>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script src="/common/plugins/iCheck/icheck.js"></script>
+    <script src="/common/plugins/iCheck/custom.js"></script>
+</head>
+<body>
+<div class="wrapper">
+    <img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>
+    <div class="content-wrapper" layout:fragment="content">
+        <section class="content-header">
+            <h1><i class="fa fa-sign-in"></i>
+                充值订单
+                <small>查看充值订单</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-yen"></i> 财务</a></li>
+                <li class="active">充值订单</li>
+            </ol>
+        </section>
+        <section id="main" class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-info">
+                        <div class="box-header">
+                            <h3 class="box-title"><i class="fa fa-filter"></i>筛选条件</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>用户搜索:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="sel_name" class="btn btn-info dropdown-toggle"
+                                                    data-toggle="dropdown">用户ID
+                                                <span class="fa fa-caret-down"></span></button>
+                                            <ul class="dropdown-menu">
+                                                <li class="li_recharge"><a href="#">用户ID</a></li>
+                                                <li class="li_recharge"><a href="#">用户昵称</a></li>
+                                            </ul>
+                                        </div>
+                                        <input type="text" id="txt_query" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>充值金额:</label>
+                                    <div class="input-group input-group-md">
+                                        <input type="text" id="input_money" class="form-control"
+                                               placeholder="输入金额，如：200">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>订单ID搜索:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="pay_voucher" class="btn btn-info dropdown-toggle"
+                                                    data-toggle="dropdown">支付凭证
+                                                <span class="fa fa-caret-down"></span></button>
+                                            <ul class="dropdown-menu">
+                                                <li class="li_pay"><a href="#">支付凭证</a></li>
+                                                <li class="li_pay"><a href="#">充值ID(商户订单号)</a></li>
+                                            </ul>
+
+                                        </div>
+                                        <input type="text" id="pay_order" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>支付方式:</label>
+                                    <div class="form-group">
+                                        <select id="sel-status" class="form-control back">
+                                            <option value="">全部</option>
+                                            <option value="ALIPAY">支付宝</option>
+                                            <option value="WEIXIN">微信</option>
+                                            <option value="IAP">苹果应用内支付</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label data-toggle="tooltip" data-placement="top" title="目前没有该字段">充值状态:</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label data-toggle="tooltip" data-placement="top" title="目前没有该字段">
+                                            <input type="checkbox" name="recharge"  value="1" class="flat-red" disabled>
+                                            充值成功
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label data-toggle="tooltip" data-placement="top" title="目前没有该字段">
+                                            <input type="checkbox" name="recharge" value="0" class="flat-red" disabled>
+                                            充值失败
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label data-toggle="tooltip" data-placement="top" title="目前没有该字段">
+                                            <input type="checkbox" name="recharge" value="2" class="flat-red" disabled>
+                                            失败已补
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label data-toggle="tooltip" data-placement="top" title="目前没有该字段">
+                                            <input type="checkbox" name="recharge" value="3" class="flat-red" disabled>
+                                            已退款
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label>支付状态:</label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" name="pay" value="0" class="flat-red">
+                                            未支付
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" name="pay" value="1" class="flat-red">
+                                            支付成功
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <div class="form-group">
+                                        <label>
+                                            <input type="checkbox" name="pay" value="2" class="flat-red">
+                                            支付失败
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-8">
+                                    <label><i class="fa fa-calendar-o">&nbsp;</i>充值时间:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                        <input class="form-control pull-right" id="txt_recharge_range" type="text"
+                                               style="text-align: left">
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-8">
+                                    <label><i class="fa fa-calendar-o">&nbsp;</i>支付时间:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                        <input class="form-control pull-right" id="txt_pay_range" type="text"
+                                               style="text-align: left">
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="onSearch()"><i class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="reset_form()"><i class="fa fa-fw fa-refresh"></i>&nbsp;重&nbsp;&nbsp;置</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="box box-success">
+                        <div class="box-body">
+                            <table id="recharge_list" class="table table-bordered text-nowrap"
+                                   data-url="/finance/recharge/list"
+                                   data-toolbar="#toolbar"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-query-params="getQueryParams"
+                                   data-toggle="table"
+                                   data-pagination="true"
+                                   data-side-pagination="server"
+                                   data-search="false"
+                                   data-show-export="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="userNo"
+                                        data-th-align="center"
+                                        data-align="center"> 用户ID
+                                    </th>
+                                    <th data-field="userNick"
+                                        data-th-align="center"
+                                        data-align="center">用户昵称
+                                    </th>
+                                    <th data-field="rechargeMoney"
+                                        data-th-align="center"
+                                        data-align="center">充值金额
+                                    </th>
+                                    <th data-field="rechargeDate"
+                                        data-th-align="center"
+                                        data-align="center">充值时间
+                                    </th>
+                                    <th data-field="payDate"
+                                        data-th-align="center"
+                                        data-align="center">支付时间
+                                    </th>
+                                    <th data-field="payType"
+                                        data-th-align="center"
+                                        data-align="center">支付方式
+                                    </th>
+                                    <th data-field="payState"
+                                        data-formatter="payState"
+                                        data-th-align="center"
+                                        data-align="center">支付状态
+                                    </th>
+                                    <th data-field="payNumber"
+                                        data-th-align="center"
+                                        data-align="center">
+                                        支付凭证
+                                        (第三方充值订单号)
+                                    </th>
+                                    <th data-field="rechargeType"
+                                        data-th-align="center"
+                                        data-align="center">
+                                        充值状态
+                                    </th>
+                                    <th data-field="rechargeId"
+                                        data-th-align="center"
+                                        data-align="center">
+                                        充值ID
+                                        (商户订单号)
+                                    </th>
+                                    <th data-halign="center"
+                                        data-align="center"
+                                        data-formatter="operation"
+                                        data-field="id"
+                                        data-events="operateEvents">操作
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 手工补充 -->
+        <div class="modal fade" id="modal_recharge" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">手工补充</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label" for="input_userId">用户ID:</label>
+                                    <input type="text" class="form-control input-sm" id="input_userId" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">充值金额:</label>
+                                    <input type="text" class="form-control input-sm" id="input_amount" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">密码<a style="color: red">*</a>:</label>
+                                    <input type="text" class="form-control input-sm" id="input_password"
+                                           placeholder="输入密码">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消
+                        </button>
+                        <button type="button" onclick="commitType()" class="btn btn-success  col-lg-pull-6">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 修改支付状态 -->
+        <div class="modal fade" id="modal_update_recharge" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">修改支付状态</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label" for="input_userId">用户ID:</label>
+                                    <input type="text" class="form-control input-sm" id="input_update_userId" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">充值金额:</label>
+                                    <input type="text" class="form-control input-sm" id="input_update_amount" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">支付状态:</label>
+                                    <select id="recharge_type" class="form-control input-sm">
+                                        <option value="0">未支付</option>
+                                        <option value="1">支付成功</option>
+                                        <option value="2">支付失败</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">支付凭证(第三方充值订单号):</label>
+                                    <input type="text" class="form-control input-sm" id="input_voucher" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">支付时间:</label>
+                                    <input type="text" class="form-control input-sm" id="input_payTime" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-12">
+                                    <label class="control-label">密码<a style="color: red">*</a>:</label>
+                                    <input type="text" class="form-control input-sm" id="input_update_password"
+                                           placeholder="输入密码">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消
+                        </button>
+                        <button type="button" onclick="updateType()" class="btn btn-success  col-lg-pull-6">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 退款 -->
+        <div class="modal fade" id="modal_reback" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">退款</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="input_userId">用户ID:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="input_reback_userId" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="input_userName">用户昵称:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="input_userName" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="input_reback_amount">充值金额:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="input_reback_amount" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-4 control-label" for="input_reback_password">密码<a
+                                        style="color: red">*</a>:</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control input-sm" id="input_reback_password"
+                                           placeholder="输入密码">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%"color=#987cb9 SIZE=10>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-8">
+                                    <b class="text-red"> 确定退款给该用户吗?</b>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消
+                        </button>
+                        <button type="button" onclick="rebackType()" class="btn btn-success  col-lg-pull-6">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script layout:fragment="scripts" th:inline="javascript">
+    var user_name = '用户ID', pay_name = '支付凭证';
+    //默认时间
+    var now = new Date();
+    var str = now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate()
+    /**
+     *
+     * 查询用户信息
+     * */
+    function onSearch() {
+        var pageSize = $('#recharge_list').bootstrapTable('getOptions')['pageSize'];
+        var queryParam = getQueryParams({'offset': 0, 'limit': pageSize});
+        $('#recharge_list').bootstrapTable('refresh', {
+            'url': '/finance/recharge/list',
+            'query': queryParam
+        });
+    }
+   /**
+    *
+    * 获取选择userType
+    * */
+   function getParamUserType() {
+       var queryType = 'userId';
+       if (user_name != null) {
+           switch (user_name) {
+               case '用户ID':
+                   queryType = 'userId';
+                   break;
+               case '用户昵称':
+                   queryType = 'userNick';
+                   break;
+           }
+       }
+       return queryType
+   }
+    /**
+     *
+     * pay_name 选择
+     *
+     * */
+    function getParamPayType() {
+        var queryType = 'payVoucher';
+        if (pay_name != null) {
+            switch (pay_name) {
+                case '支付凭证':
+                    queryType = 'payVoucher';
+                   break;
+                case '充值ID(商户订单号)':
+                    queryType = 'rechargeId';
+                   break;
+           }
+       }
+       return queryType
+   }
+   /**
+    * 重置所有属性
+    * @param obj
+    * @returns {boolean}
+    */
+   function reset_form(){
+       $('#txt_query').val("");
+       $('#pay_order').val("");
+       $('#sel-status').val("");
+       $('#input_money').val("");
+       $('input[name="recharge"]:checked').each(function () {
+           $(this).iCheck('uncheck');
+       });
+       $('input[name="pay"]:checked').each(function () {
+           $(this).iCheck('uncheck');
+       });
+   }
+    /**
+     * 操作栏
+     * @returns {string}
+     */
+    function operation() {
+        var html = []
+        html.push('<a type="button" class="btn btn-success btn-xs income" data-toggle="tooltip" data-placement="top" title="目前不需要这个功能">手工补充</a>&nbsp;');
+        html.push('<a type="button" class="btn btn-info btn-xs edit" data-toggle="tooltip" data-placement="top" title="目前不需要这个功能">修改支付状态</a>&nbsp;');
+        html.push('<a type="button" class="btn btn-danger btn-xs refund" data-toggle="tooltip" data-placement="top" title="目前不需要这个功能">退款</a>');
+        return html.join('');
+   }
+    /**
+     * 操作事件
+     * @returns {string}
+     *note('修改成功！', 'success', 1500, 'topRight');
+     */
+    window.operateEvents = {
+        //手工补充
+        'click .income': function (e, value, row) {
+            $('#modal_recharge').modal('show');
+            $('#input_userId').val(row.userNo);
+            $('#input_amount').val(row.rechargeMoney);
+        },
+        //修改支付状态
+        'click .edit': function (e, value, row) {
+            $('#modal_update_recharge').modal('show');
+            $('#input_userName').val(row.userNick);
+            $('#input_update_userId').val(row.userNo);
+            $('#input_update_amount').val(row.rechargeMoney);
+            $('#recharge_type').val(row.payState);
+            $('#input_voucher').val(row.payNumber);
+            $('#input_payTime').val(row.rechargeDate);
+        },
+        //退款
+        'click .refund': function (e, value, row) {
+            $('#modal_reback').modal('show');
+            $('#input_reback_userId').val(row.userNo);
+            $('#input_userName').val(row.userNick);
+            $('#input_reback_amount').val(row.rechargeMoney);
+        }
+    };
+
+    // 获取查询参数
+    function getQueryParams(params) {
+        var rechargeStart = $('#txt_recharge_range').val().split(" - ")[0];
+        var rechargeEnd = $('#txt_recharge_range').val().split(" - ")[1];
+        var payStart = $('#txt_pay_range').val().split(" - ")[0];
+        var payEnd = $('#txt_pay_range').val().split(" - ")[1];
+        var input_name = $('#txt_query').val();
+        var input_money = $('#input_money').val();
+        var pay_order = $('#pay_order').val();
+        if (input_name != null && input_name != '') {
+            params[getParamUserType()] = input_name;
+        }
+        if (input_money != null && input_money != '') {
+            params['rechargeMoney'] = input_money;
+        }
+        if (pay_order != null && pay_order != '') {
+            params[getParamPayType()] = pay_order;
+        }
+        if (rechargeStart == null || rechargeStart == '') {
+            rechargeStart = str
+            rechargeEnd = str
+        }
+        params['rechargeStart'] = rechargeStart;
+        params['rechargeEnd'] = rechargeEnd;
+        params['payType'] = $('#sel-status').val();
+        if (payStart != null && payEnd != null) {
+            params['payStart'] = payStart;
+            params['payEnd'] = payEnd;
+        }
+        var recharge = [];
+        $('input[name="recharge"]:checked').each(function () {
+            recharge.push($(this).val());
+        })
+        params['rechargeState'] = recharge.join(',');
+        var payState = [];
+        $('input[name="pay"]:checked').each(function () {
+            payState.push($(this).val());
+        })
+        params['payState'] = payState.join(',');
+        return params;
+    }
+
+    //家族成员
+    function payState(value) {
+        switch (value){
+            case 0:
+                return "<span style='color: darkred'>未支付</span>";
+                break;
+            case 1:
+                return "<span style='color: green'>支付成功</span>";
+                break;
+            case 2:
+                return "<span style='color: red'>支付失败</span>";
+                break;
+        }
+    }
+
+    /**
+     *
+     * 数据的初始化方案
+     */
+    $(function () {
+        $('#txt_pay_range').daterangepicker({
+            autoApply: true, maxDate: moment().format('YYYY-MM-DD'),
+            autoUpdateInput: false,
+            locale: DATE_LOCAL_DAY
+        });
+        $('#txt_pay_range').on('apply.daterangepicker', function (ev, picker) {
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+        });
+
+        $('#txt_pay_range').on('cancel.daterangepicker', function (ev, picker) {
+            $(this).val('');
+        });
+        $('#txt_recharge_range').daterangepicker({
+            autoApply: true, maxDate: moment().format('YYYY-MM-DD'),
+            startDate: moment().subtract(0, 'days').format('YYYY-MM-DD'),
+            locale: DATE_LOCAL_DAY
+        });
+
+        $("#dg-user").bootstrapTable("showLoading");
+        $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+            checkboxClass: 'icheckbox_flat-green',
+            radioClass: 'iradio_flat-green',
+        });
+        $('.dropdown-menu .li_recharge').on('click', function () {
+            $('#sel_name').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            user_name = $(this).text();
+        });
+
+        $('.dropdown-menu .li_pay').on('click', function () {
+            $('#pay_voucher').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            pay_name = $(this).text();
+        });
+    });
+
+</script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" lang="zh-CN">
+<head>
+    <title>Left Side Fragment</title>
+</head>
+<body>
+<aside class="main-sidebar" th:fragment="left-side">
+    <section class="sidebar" sec:authorize="isAuthenticated()">
+        <div class="user-panel">
+            <div class="pull-left image">
+                <img src="/common/lte/img/avatar.png" class="img-circle" alt="User Image">
+            </div>
+            <div class="pull-left info">
+                <p th:inline="text">[[${#httpServletRequest.remoteUser}]]</p>
+                <a href="#"><i class="fa fa-circle text-success"></i> Online</a>
+            </div>
+        </div>
+
+        <form action="#" method="get" class="sidebar-form">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" placeholder="Search...">
+                <span class="input-group-btn">
+                <button type="submit" name="search" id="search-btn" class="btn btn-flat"><i class="fa fa-search"></i>
+                </button>
+              </span>
+            </div>
+        </form>
+
+        <ul class="sidebar-menu">
+            <li class="header">管理菜单</li>
+            <li th:class="${model eq 'basic'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_BASIC')">
+
+                <!-- 基础管理 -->
+                <a href="#"><i class="fa fa-user"></i><span data-toggle="tooltip" data-placement="right" title="用户、验证码信息、反馈信息等">基础管理</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i>
+                </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'template'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_TEMPLATE')"><a th:href="@{/view/basic/template}"><i class="fa fa-sign-in"></i>页面模板</a></li>
+                    <li th:class="${page eq 'version'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_VERSION')"><a th:href="@{/view/basic/version}"><i class="fa fa-sign-in"></i>版本控制</a></li>
+                    <li th:class="${page eq 'update-auto'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_UPDATE-AUTO')"><a th:href="@{/view/basic/update/auto}"><i class="fa fa-sign-in"></i>安卓自动更新</a></li>
+                    <li th:class="${page eq 'update-auto'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_UPDATE-AUTO')"><a th:href="@{/view/basic/app/version}"><i class="fa fa-sign-in"></i>APP版本管理</a></li>
+                    <li th:class="${page eq 'announcement'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_ANNOUNCEMENT')"><a th:href="@{/view/basic/announcement}"><i class="fa fa-hand-paper-o"></i>系统公告</a></li>
+                    <!--<li th:class="${page eq 'tab'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_TAB')"><a th:href="@{/view/basic/tab}"><i class="fa fa-mobile"></i>首页聊天室Tab配置</a></li>-->
+                    <li th:class="${page eq 'banner'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_BANNER')"><a th:href="@{/view/basic/banner}"><i class="fa fa-windows"></i>Banner 配置</a></li>
+                    <li th:class="${page eq 'app'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_BASIC_APP')"><a th:href="@{/view/basic/app}"><i class="fa fa-exchange"></i>兑换配置</a></li>
+                </ul>
+            </li>
+
+            <!-- 用户管理 -->
+            <li th:class="${model eq 'user'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_USER')">
+                <a href="#"><i class="fa fa-user"></i><span data-toggle="tooltip" data-placement="right" title="用户、验证码信息、反馈信息等">用户管理</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span>
+                </a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'list'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_USER_LIST')"><a th:href="@{/view/user/list}"><i class="fa fa-sign-in"></i>用户列表</a></li>
+                    <li th:class="${page eq 'report'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_USER_FEEDBACK')"><a th:href="@{/view/user/report}"><i class="fa fa-hand-paper-o"></i>用户反馈</a></li>
+                    <li th:class="${page eq 'code'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_USER_VERIFICATION-CODE')"><a th:href="@{/view/user/code}"><i class="fa fa-mobile"></i>验证码列表</a></li>
+                    <li th:class="${page eq 'audit'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_USER_VERIFICATION-CODE')"><a th:href="@{/view/user/audit}"><i class="fa fa-eye"></i>头像/背景审核</a></li>
+                    <!--<li th:class="${page eq 'activity'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_USER_ACTIVITY')"><a th:href="@{/view/user/code}"><i class="fa fa-mobile"></i>&#45;&#45;活动管理</a></li>-->
+                    <li th:class="${page eq 'account-details'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_USER_ACCOUNT')"><a th:href="@{/view/user/account}"><i class="fa fa-list-ol"></i>账户明细</a></li>
+                </ul>
+            </li>
+
+            <!-- 财务 -->
+            <li th:class="${model eq 'finance'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FINANCE_FINANCE')">
+                <a href="#"><i class="fa fa-yen"></i><span>财务</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'recharge-order'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FINANCE_RECHARGE')"><a th:href="@{/view/finance/recharge/order}"><i class="fa fa-sign-in"></i>充值订单</a></li>
+                    <li th:class="${page eq 'cash-list'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FINANCE_WITHDRAW')"><a th:href="@{/view/finance/cash/list}"><i class="fa fa-cc-diners-club"></i>提现列表</a></li>
+                    <li th:class="${page eq 'reward-details'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FINANCE_REWARD')"><a th:href="@{/view/finance/reward/details}"><i class="fa fa-sheqel"></i>打赏明细</a></li>
+                    <li th:class="${page eq 'manual-recharge'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FINANCE_MANUAL-RECHARGE')"><a th:href="@{/view/finance/manual/recharge}"><i class="fa  fa-hand-lizard-o"></i>手工充值</a></li>
+                    <li th:class="${page eq 'account-balance'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FINANCE_BALANCE')"><a th:href="@{/view/finance/account/balance}"><i class="fa fa-usd"></i>账户余额</a></li>
+                </ul>
+            </li>
+
+            <!-- 聊天室 -->
+            <li th:class="${model eq 'chatroom'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM')">
+                <a href="#"><i class="fa fa-users"></i><span data-toggle="tooltip" data-placement="right" title="房间、类别、举报信息等" th:text="聊天室"></span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'room-online'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_ROOM-ONLINE')"><a th:href="@{/view/chatroom/online}"><i class="fa fa-sign-in"></i>在线聊天室</a></li>
+                    <li th:class="${page eq 'room-list'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_ROOM-LIST')"><a th:href="@{/view/chatroom/list}"><i class="fa fa-sign-in"></i>聊天室列表</a></li>
+                    <li th:class="${page eq 'room-reward-list'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_ROOM-REWARD')"><a th:href="@{/view/chatroom/reward/list}"><i class="fa fa-sign-in"></i>打赏列表</a>
+                    </li>
+                    <li th:class="${page eq 'room-reward-rank-give'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_ROOM-REWARD-RANK-GIVE')"><a th:href="@{/view/chatroom/reward/rank/give}"><i
+                            class="fa fa-sign-in"></i>打赏排行榜</a></li>
+                    <li th:class="${page eq 'room-reward-rank-get'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_ROOM-REWARD-RANK-GET')"><a th:href="@{/view/chatroom/reward/rank/get}"><i class="fa fa-sign-in"></i>受赏排行榜</a>
+                    </li>
+                    <li th:class="${page eq 'type'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_ROOM-TYPE')"><a th:href="@{/view/chatroom/type}"><i class="fa fa-tags"></i>聊天室标签配置</a></li>
+                    <li th:class="${template eq 'type'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_ROOM-TEMPLATE')"><a th:href="@{/view/chatroom/template}"><i class="fa fa-tags"></i>聊天室模板配置</a></li>
+                    <li th:class="${page eq 'report-type'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_REPORT-TYPE')"><a th:href="@{/view/chatroom/report/type}"><i class="fa fa-legal"></i>举报类型</a></li>
+                    <li th:class="${page eq 'report'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_REPORT')"><a th:href="@{/view/chatroom/report}"><i class="fa fa-legal"></i>聊天室举报管理</a></li>
+                    <li th:class="${page eq 'report-user'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_CHATROOM_REPORT-USER')"><a th:href="@{/view/chatroom/report/user}"><i class="fa fa-legal"></i>用户举报管理</a></li>
+                </ul>
+            </li>
+
+            <!-- 家族 -->
+            <li th:class="${model eq 'family'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FAMILY')">
+                <a href="#"><i class="fa fa-users"></i><span data-toggle="tooltip" data-placement="right" title="家族、收益信息等">家族</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i>
+                </span>
+                </a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'list'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FAMILY_LIST')"><a th:href="@{/view/family/list}"><i class="fa fa-user-plus"></i>家族列表</a></li>
+                    <li th:class="${page eq 'income-list'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_FAMILY_INCOME')"><a th:href="@{/view/family/income/list}"><i class="fa fa-money"></i>家族收益列表</a></li>
+                </ul>
+            </li>
+
+            <!-- 礼物 -->
+            <li th:class="${model eq 'gift'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_GIFT')">
+                <a href="#"><i class="fa fa-gift"></i><span data-toggle="tooltip" data-placement="right" title="礼物，动效管理信息等">礼物</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'gift'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_GIFT_LIST')"><a th:href="@{/view/gift/list}"><i class="fa fa-list-alt"></i>礼物列表</a></li>
+                    <li th:class="${page eq 'gift'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_GIFT_ANIMATION')"><a th:href="@{/view/gift/animation}"><i class="fa fa-cc"></i>动效列表</a></li>
+                </ul>
+            </li>
+            <!-- 作品 -->
+            <li th:class="${model eq 'production'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_PRODUCTION')">
+                <a href="#"><i class="fa fa-cubes"></i><span data-toggle="tooltip" data-placement="right" title="作品列表，审核管理信息等">作品</span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'production-list'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_PRODUCTION_LIST')"><a th:href="@{/view/production/list}"><i class="fa fa-list-alt"></i>-- 作品列表</a></li>
+                    <li th:class="${page eq 'production-audit'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_PRODUCTION_AUDIT')"><a th:href="@{/view/production/audit}"><i class="fa fa-exclamation-circle"></i>-- 作品审核列表</a></li>
+                    <li th:class="${page eq 'production-classify'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_PRODUCTION_CLASSIFY')"><a th:href="@{/view/production/classify}"><i class="fa fa-sitemap"></i>-- 分类管理</a></li>
+                    <li th:class="${page eq 'production-report'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_PRODUCTION_REPORT')"><a th:href="@{/view/production/report}"><i class="fa fa-hand-stop-o "></i>-- 作品举报列表</a></li>
+                </ul>
+            </li>
+
+            <!-- 系统设置 -->
+            <li th:class="${model eq 'system'} ? 'treeview active' : 'treeview'" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_SYSTEM')">
+                <a href="#"><i class="fa fa-cogs"></i><span th:text="系统设置"></span><span class="pull-right-container"><i class="fa fa-angle-left pull-right"></i></span></a>
+                <ul class="treeview-menu">
+                    <li th:class="${page eq 'user'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_MODULE_SUMMARY_DAY')" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_SYSTEM_USER')"><a
+                            th:href="@{/view/system/user}"><i class="fa fa-odnoklassniki"></i>系统用户管理</a></li>
+                    <li th:class="${page eq 'role'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_MODULE_SUMMARY_DAY')" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_SYSTEM_ROLE')"><a
+                            th:href="@{/view/system/role}"><i class="fa fa-user-plus"></i>角色管理</a></li>
+                    <li th:class="${page eq 'privilege'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_MODULE_SUMMARY_DAY')" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_SYSTEM_PRIVILEGE')"><a
+                            th:href="@{/view/system/privilege}"><i class="fa fa-unlock-alt"></i>权限管理</a></li>
+                    <li th:class="${page eq 'custom'} ? 'active':''" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_MODULE_SUMMARY_DAY')" sec:authorize="hasRole('ROLE_ADMIN') || hasRole('ROLE_SYSTEM_CUSTOM')"><a
+                            th:href="@{/view/system/custom}"><i class="fa fa-cogs"></i>偏好设置</a></li>
+                </ul>
+            </li>
+        </ul>
+    </section>
+</aside>
+</body>
+</html>

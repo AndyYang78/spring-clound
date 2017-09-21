@@ -1,0 +1,906 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN"
+      layout:decorator="layout">
+<head>
+    <title>作品列表</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_hader" th:content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script src="/common/plugins/iCheck/icheck.js"></script>
+    <script src="/common/plugins/iCheck/custom.js"></script>
+    <link rel="stylesheet" href="/common/bootstrap/css/fileinput.css"/>
+    <link rel="stylesheet" href="/common/bootstrap/css/theme.css"/>
+    <script src="/common/bootstrap/js/fileinput.js"></script>
+    <script src="/common/bootstrap/js/zh.js"></script>
+    <link rel="stylesheet" href="/common/plugins/colorpicker/bootstrap-colorpicker.min.css"/>
+    <script src="/common/plugins/datepicker/bootstrap-datepicker.js"></script>
+    <script src="/common/plugins/datepicker/locales/bootstrap-datepicker.zh-CN.js" charset="UTF-8"></script>
+    <link rel="stylesheet" href="/common/plugins/datepicker/datepicker3.css">
+    <link rel="stylesheet" href="/content/user/user_modal.css">
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <div class="content-wrapper" layout:fragment="content">
+        <section class="content-header">
+            <h1><i class="fa fa-list-alt">&nbsp;</i>
+                作品列表
+                <small>查看作品的详细信息</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 作品</a></li>
+                <li class="active">作品列表</li>
+            </ol>
+        </section>
+
+        <section id="main" class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-info">
+                        <div class="box-header">
+                            <h3 class="box-title"><i class="fa fa-filter"></i>筛选条件</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>搜索内容:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="sel_name" class="btn btn-info dropdown-toggle"
+                                                    data-toggle="dropdown">用户ID
+                                                <span class="fa fa-caret-down"></span></button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="#">作品ID</a></li>
+                                                <li><a href="#">作品名称</a></li>
+                                                <li><a href="#">用户ID</a></li>
+                                                <li><a href="#">用户昵称</a></li>
+                                                <li><a href="#">手机号</a></li>
+                                            </ul>
+                                        </div>
+                                        <input type="text" id="txt_query" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-2 col-sm-3">
+                                    <label>作品状态:</label>
+                                    <div class="form-group">
+                                        <select id="sel-status" class="form-control back">
+                                            <option value="">全部</option>
+                                            <option value="0">已上架</option>
+                                            <option value="1">待审核</option>
+                                            <option value="2">未通过</option>
+                                            <option value="3">被下架</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-2 col-sm-3">
+                                    <label>平台:</label>
+                                    <div class="form-group">
+                                        <select id="sel_device" class="form-control">
+                                            <option value="">全部</option>
+                                            <option value="Android">Android</option>
+                                            <option value="iOS">iOS</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-3 col-sm-6 col-xs-8">
+                                    <label><i class="fa fa-calendar-o">&nbsp;</i>开始时间:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                        <input class="form-control pull-right" id="txt_date_start" type="text"
+                                               style="text-align: center">
+                                    </div>
+                                </div>
+                                <div class="col-lg-2 col-md-3 col-sm-6 col-xs-8">
+                                    <label><i class="fa fa-calendar-o">&nbsp;</i>结束时间:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                        <input class="form-control pull-right" id="txt_date_end" type="text"
+                                               style="text-align: center">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="onSearch()"><i
+                                                class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="reset_form()"><i
+                                                class="fa fa-fw fa-refresh"></i>&nbsp;重&nbsp;&nbsp;置</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="firstDiv"></div>
+                    <div class="box box-success">
+                        <div class="box-body">
+                            <table id="table_main" class="table table-bordered table-hover"
+                                   data-url="/user/query/user/list"
+                                   data-toolbar="#toolbar"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-query-params="getQueryParams"
+                                   data-toggle="table"
+                                   data-pagination="true"
+                                   data-side-pagination="server"
+                                   data-search="false"
+                                   data-show-export="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="eryu_no"
+                                        data-th-align="center"
+                                        data-align="center">作品Id
+                                    </th>
+                                    <th data-field="avatar"
+                                        data-formatter="YPP.formatter.avatar"
+                                        data-th-align="center"
+                                        data-align="center">作品名称
+                                    </th>
+                                    <th data-field="name"
+                                        data-formatter="vipStatus"
+                                        data-th-align="center"
+                                        data-align="center">作品封面
+                                    </th>
+                                    <th data-field="user_name"
+                                        data-th-align="center"
+                                        data-align="center">作者名称
+                                    </th>
+                                    <th data-field="mobile"
+                                        data-th-align="center"
+                                        data-align="center">作品状态
+                                    </th>
+                                    <th data-field="isIdentity"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">播放数
+                                    </th>
+                                    <th data-field="status"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">收藏数
+                                    </th>
+                                    <th data-field="accountStatus"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">点赞数
+                                    </th>
+                                    <th data-field="isNetease"
+                                        data-th-align="center"
+                                        data-align="center">上传时间
+                                    </th>
+                                    <th data-halign="center"
+                                        data-align="center"
+                                        data-formatter="operation"
+                                        data-field="id"
+                                        data-events="operateEvents">操作
+                                    </th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 作品详情 -->
+        <div class="modal right fade" id="modal_detail" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">用户设置</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <div id="table">
+                                    <li>
+                                        <div class="left_yang">用户id:</div>
+                                        <div class="right_yang" id="input_edit_id"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">手机号:</div>
+                                        <div class="right_yang" id="input_mobile"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">用户状态:</div>
+                                        <div class="right_yang" id="input_status"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">账户状态:</div>
+                                        <div class="right_yang" id="input_accout"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">身份认证:</div>
+                                        <div class="right_yang" id="input_identity"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">姓&nbsp;名&nbsp;:</div>
+                                        <div class="right_yang" id="input_name"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">性&nbsp;别&nbsp;:</div>
+                                        <div class="right_yang" id="input_sex"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">vip&nbsp;&nbsp;:</div>
+                                        <div class="right_yang" id="input_vip"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">充值钻石:</div>
+                                        <div class="right_yang" id="input_recharge"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">消费钻石:</div>
+                                        <div class="right_yang" id="input_consume"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">收益:</div>
+                                        <div class="right_yang" id="input_income"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">最后登录时间:</div>
+                                        <div class="right_yang" id="input_login"></div>
+                                    </li>
+                                </div>
+                            </div>
+                            <div class="form-group"></div>
+                            <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#987cb9
+                                SIZE=10>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>头&nbsp;&nbsp;像</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteCover()">删除</button>
+                                </div>
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <input id="gift_img" name="file-fr" type="file" width="150" height="150">
+                                    <!--<img id="img_avatar" src="/common/lte/img/photo_icon.png" border="2" width=80%  height=60%>-->
+                                    <!--<input id="fileUploadContent" name="file-fr" type="file" width="200" height="150">-->
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>背&nbsp;景&nbsp;图</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteImage()">删除</button>
+
+                                </div>
+                                <!--<div class="col-sm-1 col-xs-2">-->
+                                <!--<label>&nbsp;</label>-->
+                                <!--<button type="button" class="btn btn-info" id="div_img">编辑</button>-->
+                                <!--</div>-->
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <input id="gift_profile" name="file-fr" type="file" width="200" height="150">
+                                    <!--<img id="input_img_url" src="/common/lte/img/photo_icon.png" border="2" width=100%-->
+                                    <!--height=80%>-->
+                                </div>
+                            </div>
+                            <div class="form-group"></div>
+                            <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#987cb9
+                                SIZE=10>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>昵&nbsp;称</label>
+                                    <button type="button" class="btn btn-info" onclick="editeName()">编辑</button>
+                                </div>
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteName()">删除</button>
+                                </div>
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <input type="text" class="form-control" id="user_name" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>签&nbsp;名</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteSign()">删除</button>
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <textarea class="form-control" rows="5" id="txt_message" disabled></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>学&nbsp;校</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteSchoole()">删除</button>
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <input class="form-control" id="txt_schoole" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>职&nbsp;业</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteOcc()">删除</button>
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <input class="form-control" id="txt_occupation" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">城&nbsp;市</label>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <input class="form-control" id="txt_city" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">生&nbsp;日</label>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <input class="form-control" id="txt_birthday" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group"></div>
+                            <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#987cb9
+                                SIZE=10>
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label>冻结用户</label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="flat-red " name="user" value="2" id="user_status">
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <label>冻结账户</label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="flat-red " name="user" value="2" id="account_status">
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>设置网红</label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="flat-red " name="user" value="1" id="set_net">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消
+                        </button>&nbsp;&nbsp;
+                        <button type="button" onclick="commitUpdate()" class="btn btn-success">提交设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 添加作品 -->
+        <div class="modal right fade" id="modal_add" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">用户设置</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <div id="table">
+                                    <li>
+                                        <div class="left_yang">用户id:</div>
+                                        <div class="right_yang" id="input_edit_id"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">手机号:</div>
+                                        <div class="right_yang" id="input_mobile"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">用户状态:</div>
+                                        <div class="right_yang" id="input_status"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">账户状态:</div>
+                                        <div class="right_yang" id="input_accout"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">身份认证:</div>
+                                        <div class="right_yang" id="input_identity"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">姓&nbsp;名&nbsp;:</div>
+                                        <div class="right_yang" id="input_name"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">性&nbsp;别&nbsp;:</div>
+                                        <div class="right_yang" id="input_sex"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">vip&nbsp;&nbsp;:</div>
+                                        <div class="right_yang" id="input_vip"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">充值钻石:</div>
+                                        <div class="right_yang" id="input_recharge"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">消费钻石:</div>
+                                        <div class="right_yang" id="input_consume"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">收益:</div>
+                                        <div class="right_yang" id="input_income"></div>
+                                    </li>
+                                    <li>
+                                        <div class="left_yang">最后登录时间:</div>
+                                        <div class="right_yang" id="input_login"></div>
+                                    </li>
+                                </div>
+                            </div>
+                            <div class="form-group"></div>
+                            <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#987cb9
+                                SIZE=10>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>头&nbsp;&nbsp;像</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteCover()">删除</button>
+                                </div>
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <input id="gift_img" name="file-fr" type="file" width="150" height="150">
+                                    <!--<img id="img_avatar" src="/common/lte/img/photo_icon.png" border="2" width=80%  height=60%>-->
+                                    <!--<input id="fileUploadContent" name="file-fr" type="file" width="200" height="150">-->
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>背&nbsp;景&nbsp;图</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteImage()">删除</button>
+
+                                </div>
+                                <!--<div class="col-sm-1 col-xs-2">-->
+                                <!--<label>&nbsp;</label>-->
+                                <!--<button type="button" class="btn btn-info" id="div_img">编辑</button>-->
+                                <!--</div>-->
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;&nbsp;</label>
+                                    <input id="gift_profile" name="file-fr" type="file" width="200" height="150">
+                                    <!--<img id="input_img_url" src="/common/lte/img/photo_icon.png" border="2" width=100%-->
+                                    <!--height=80%>-->
+                                </div>
+                            </div>
+                            <div class="form-group"></div>
+                            <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#987cb9
+                                SIZE=10>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>昵&nbsp;称</label>
+                                    <button type="button" class="btn btn-info" onclick="editeName()">编辑</button>
+                                </div>
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>&nbsp;</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteName()">删除</button>
+                                </div>
+                                <div class="col-sm-2"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <input type="text" class="form-control" id="user_name" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>签&nbsp;名</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteSign()">删除</button>
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <textarea class="form-control" rows="5" id="txt_message" disabled></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>学&nbsp;校</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteSchoole()">删除</button>
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <input class="form-control" id="txt_schoole" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-1 col-xs-2">
+                                    <label>职&nbsp;业</label>
+                                    <button type="button" class="btn btn-danger" onclick="deleteOcc()">删除</button>
+                                </div>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <label>&nbsp;</label>
+                                    <input class="form-control" id="txt_occupation" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">城&nbsp;市</label>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <input class="form-control" id="txt_city" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label class="col-sm-1 control-label">生&nbsp;日</label>
+                                <div class="col-sm-3"></div>
+                                <div class="col-sm-6">
+                                    <input class="form-control" id="txt_birthday" disabled>
+                                </div>
+                            </div>
+                            <div class="form-group"></div>
+                            <HR style="FILTER: alpha(opacity=100,finishopacity=0,style=3)" width="100%" color=#987cb9
+                                SIZE=10>
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                    <label>冻结用户</label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="flat-red " name="user" value="2" id="user_status">
+                                </div>
+
+                                <div class="col-sm-2">
+                                    <label>冻结账户</label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="flat-red " name="user" value="2" id="account_status">
+                                </div>
+                                <div class="col-sm-2">
+                                    <label>设置网红</label>
+                                </div>
+                                <div class="col-sm-1">
+                                    <input type="checkbox" class="flat-red " name="user" value="1" id="set_net">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消
+                        </button>&nbsp;&nbsp;
+                        <button type="button" onclick="commitUpdate()" class="btn btn-success">提交设置</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script layout:fragment="scripts" th:inline="javascript">
+    var sel_choose = '用户ID';
+    var id = '';
+    var nickName;
+    //用户 账户，网红 是否删除名称，图像，背景，签名。学校，职业
+    var userState = 1, accountState = 1, netState = 0, nameState = 0, avataeState = 0, profileState = 0, signaState = 0,
+        schooleState = 0, accutionState = 0;
+    //默认时间
+    var now = new Date();
+    var defindDate = now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate()
+    //修改默认的图像
+    var changeAvatar = '';
+    //修改的背景图像
+    var changeCover = '';
+    var token = $('meta[name="_csrf"]').attr("content");
+    var header = $('meta[name="_csrf_hader"]').attr("content");
+    $(document).ajaxSend(function (e, xhr, opt) {
+        xhr.setRequestHeader(header, token);
+    });
+    $(function () {
+        date();
+        $('input[type="checkbox"].flat-red, input[type="radio"].flat-red').iCheck({
+            checkboxClass: 'icheckbox_flat-green',
+            radioClass: 'iradio_flat-green',
+        });
+        //设置用户状态
+        $('#user_status').on('ifChanged', function (event) {
+            if (userState != 2) {
+                userState = 2
+            } else {
+                userState = 1
+            }
+        })
+
+    });
+
+    /**
+     * 日期设置
+     *
+     * */
+    function date() {
+        $('#txt_date_start').datepicker({
+            minViewMode: 0,
+            format: 'yyyy-mm-dd',
+            language: 'zh-CN',
+            autoclose: true,
+            endDate: defindDate
+        });
+        $('#txt_date_end').datepicker({
+            minViewMode: 0,
+            format: 'yyyy-mm-dd',
+            language: 'zh-CN',
+            autoclose: true,
+            endDate: defindDate
+        });
+        $('#txt_date_start').val('2017-01-01');
+        $('#txt_date_end').val(defindDate);
+    }
+
+    /**
+     * 搜索
+     * @param obj
+     * @returns {boolean}
+     */
+    function onSearch() {
+        var pageSize = $('#dg-user').bootstrapTable('getOptions')['pageSize'];
+        var queryParam = getQueryParams({'offset': 0, 'limit': pageSize}, 1);
+        $('#dg-user').bootstrapTable('refresh', {
+            'url': '/user/query/user/list',
+            'query': queryParam
+        });
+    }
+
+    /**
+     * 搜索
+     * @param obj
+     * @returns {boolean}
+     */
+    function onOperation() {
+        var pageSize = $('#dg-user').bootstrapTable('getOptions')['pageSize'];
+        if (sel_choose != null) {
+            switch (sel_choose) {
+                case '用户ID':
+                    queryType = 'erNo'
+                    break;
+                case '用户昵称':
+                    queryType = 'nickname'
+                    break;
+                case '手机号':
+                    queryType = 'mobile'
+                    break;
+                case '作品ID':
+                    queryType = 'productId'
+                    break;
+                case '作品名称':
+                    queryType = 'productName'
+                    break;
+            }
+        }
+        return queryType;
+    }
+
+    /**
+     * 重置所有属性
+     * @param obj
+     * @returns {boolean}
+     */
+    function reset_form() {
+        $('#txt_query').val("");
+        $('#sel-status').val("");
+        $('#sel_device').val("");
+        $('#txt_date_start').val('2017-01-01');
+        $('#txt_date_end').val(defindDate);
+    }
+
+    // 获取查询参数
+    function getQueryParams(params) {
+        var dateStart = $('#txt_date_start').val();
+        var dateEnd = $('#txt_date_end').val();
+        var status = $('#sel-status').val();
+        var device = $('#sel_device').val();
+        var input_name = $('#txt_query').val();
+        params['dateStart'] = dateStart;
+        params['dateEnd'] = dateEnd;
+        params['status'] = status;
+        params['device'] = device;
+        if (input_name != null && input_name != '') {
+            params[onOperation()] = input_name;
+        }
+        return params;
+    }
+
+    /**
+     *
+     * 操作栏
+     * */
+    function operation() {
+        var html = [];
+        html.push('<a type="button" class="btn btn-success btn-xs edit">查看</a>');
+        return html.join('');
+    }
+
+    /**
+     * 事件操作
+     * @returns {*}
+     * */
+    window.operateEvents = {
+        //编辑
+        'click .edit': function (e, value, row) {
+            nickName = row.user_name;
+            $('#input_status').empty();
+            $('#input_accout').empty();
+            $('#input_identity').empty();
+            $('#input_edit_id').text(row.eryu_no);
+            $('#input_mobile').text(row.mobile);
+            $('#input_status').append(typeState(row.status));
+            $('#input_accout').append(typeState(row.accountStatus));
+            $('#input_name').text(row.name);
+            $('#input_sex').text(YPP.formatter.gender(row.gender));
+            $('#input_vip').text(row.vip);
+            $('#input_recharge').text(row.rechargeDiamonds);
+            $('#input_consume').text(row.tradeDiamonds);
+            $('#input_income').text(row.incomeDiamonds + " 水晶/" + row.incomeAmount + " 元");
+            $('#input_login').text(row.loginTime);
+            $('#user_name').val(row.user_name);
+            $('#txt_message').val(row.signa);
+            $('#txt_occupation').val(row.occupation);
+            $('#txt_schoole').val(row.school);
+            $('#txt_city').val(row.city);
+            $('#txt_birthday').val(row.birthday);
+            var picture = returnPicture(row.avatar);
+            var cover = returnPicture(row.profile_img);
+            id = row.id;
+            $('#gift_img').fileinput('refresh', {
+                initialPreview: [ //预览图片的设置
+                    "<img src=" + picture + "  width='200' height='150' class='file-preview-image'>",
+                ],
+            });
+            $('#gift_profile').fileinput('refresh', {
+                initialPreview: [ //预览图片的设置
+                    "<img src=" + cover + "  width='200' height='150' class='file-preview-image'>",
+                ],
+            });
+            if (row.status == 2) {
+                $('#user_status').iCheck('check')
+            } else {
+                $('#user_status').iCheck('uncheck')
+            }
+            if (row.accountStatus == 2) {
+                $('#account_status').iCheck('check')
+            } else {
+                $('#account_status').iCheck('uncheck')
+            }
+            if (row.isNet == 1) {
+                $('#set_net').iCheck('check')
+            } else {
+                $('#set_net').iCheck('uncheck')
+            }
+            id = row.id;
+            $('#modal_detail').modal('show');
+        }
+    };
+
+    /**
+     * 删除图像
+     *
+     * */
+    function deleteCover() {
+        $('#gift_img').fileinput('refresh', {
+            initialPreviewAsData: false,
+            initialPreview: [ //预览图片的设置
+                "",
+            ],
+        });
+        note('确定设置后，你将删除用户的图像！', 'success', 1500, 'topRight');
+        avataeState = 1;
+    }
+
+    /**
+     * 设置
+     *    //用户 账户，网红 是否删除名称，图像，背景，签名。学校，职业
+     var userState = 1, accountState = 1, netState = 0, nameState = 0, avataeState = 0, profileState = 0, signaState = 0, schooleState = 0, accutionState = 0;
+     *    //修改默认的图像changeAvatar = '';修改的背景图像changeCover = '';
+     * @returns {*}
+     */
+    function commitUpdate() {
+        var param = {};
+        param['userId'] = id;
+        param['status'] = userState;
+        param['accountState'] = accountState;
+        param['net'] = netState;
+        param['nameState'] = nameState;
+        param['avataeState'] = avataeState;
+        param['profileState'] = profileState;
+        param['signaState'] = signaState;
+        param['schooleState'] = schooleState;
+        param['accutionState'] = accutionState;
+        param['schooleState'] = schooleState;
+        param['accutionState'] = accutionState;
+        if (changeAvatar != '') {
+            param['changeAvatar'] = changeAvatar;
+        }
+        if (changeCover != '') {
+            param['changeCover'] = changeCover;
+        }
+        if ($('#user_name').val() != nickName) {
+            param['nickName'] = $('#user_name').val();
+        }
+        $.post('/user/status/update', param, function (response) {
+            if (response.success) {
+                $('#dg-user').bootstrapTable('refresh');
+                $('#modal_detail').modal('hide');
+                note('设置成功！', 'success', 1500, 'topRight');
+            } else {
+                note('设置失败:' + response.message, 'error', 5000, 'topRight');
+            }
+        })
+    }
+
+    $(function () {
+        $('.dropdown-menu li').on('click', function () {
+            $('#sel_name').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            sel_choose = $(this).text();
+        });
+    });
+
+    /**
+     *
+     * 图片样式转换
+     *
+     * */
+    function returnPicture(value) {
+        if (value.indexOf("http") == 0) {
+            return value;
+        } else {
+            return "http://photo.eryufm.cn/" + value;
+        }
+    }
+
+    /**
+     *
+     * 状态格式转换
+     * */
+    function typeState(value) {
+        return value == 1 ? "<span style='color: green'>已激活</span>" : (value == 0 ? "<span style='color: #00a1cb'>未激活</span>" : "<span style='color: red'>冻结</span>");
+    }
+
+    /**
+     *
+     * 状态格式转换
+     * */
+    function identityState(value) {
+        return value == 1 ? "<span style='color: green'>已认证</span>" : "<span style='color: red'>未认证</span>";
+    }
+
+    /**
+     * 编辑用户的头像
+     */
+    $("#gift_img").fileinput({
+        language: 'zh',
+        uploadUrl: '/file/uploadImg',
+        allowedFileExtensions: ['jpg', 'png', 'gif'],
+        maxFileSize: 0,
+        enctype: 'multipart/form-data',
+        showUpload: true, //是否显示上传按钮
+        showCaption: false,//是否显示标题
+        browseClass: "btn btn-primary", //按钮样式
+        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+    }).on('fileuploaded', function (event, data, previewId, index) {
+        changeAvatar = data.response.data;
+    });
+</script>
+</body>
+</html>

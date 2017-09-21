@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      xmlns="http://www.w3.org/1999/html" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>账户余额</title>
+    <meta name="description" content="Flat UI Kit Free is a Twitter Bootstrap Framework design and Theme, this responsive framework includes a PSD and HTML version."/>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <link rel="stylesheet" href="/common/plugins/datepicker/datepicker3.css">
+</head>
+<body>
+<div class="wrapper">
+    <img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1><i class="fa fa-usd"></i>
+                账户余额
+                <small>查看账户余额</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 财务</a></li>
+                <li class="active">账户余额</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section id="main" class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-info">
+                        <!-- /.box-header -->
+                        <div class="box-header">
+                            <h3 class="box-title"><i class="fa fa-filter"></i>筛选条件</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>搜索内容:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="sel_name" class="btn btn-info dropdown-toggle" data-toggle="dropdown">用户ID
+                                                <span class="fa fa-caret-down"></span></button>
+                                            <ul class="dropdown-menu">
+                                                <li><a href="#">用户ID</a></li>
+                                                <li><a href="#">用户昵称</a></li>
+                                            </ul>
+
+                                        </div>
+                                        <!-- /btn-group -->
+                                        <input type="text" id="txt_query" class="form-control">
+                                    </div>
+                                </div>
+
+                            </div>
+                            <div class="form-group"></div>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="onSearch()"><i class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="reset_form()"><i class="fa fa-fw fa-refresh"></i>&nbsp;重&nbsp;&nbsp;置</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="firstDiv"></div>
+                    <div class="box box-success">
+                        <div class="box-body">
+                            <table id="dg-user" class="table table-bordered table-hover"
+                                   data-url="/finance/account/balance"
+                                   data-toolbar="#toolbar"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-query-params="getQueryParams"
+                                   data-toggle="table"
+                                   data-pagination="true"
+                                   data-side-pagination="server"
+                                   data-search="false"
+                                   data-show-export="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="userNo"
+                                        data-th-align="center"
+                                        data-align="center">用户ID
+                                    </th>
+                                    <th data-field="userNick"
+                                        data-th-align="center"
+                                        data-align="center">用户昵称</th>
+                                    <th data-field="state"
+                                        data-formatter="typeState"
+                                        data-th-align="center"
+                                        data-align="center">用户状态</th>
+                                    <th data-field="diamondAll"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">充值钻石总额
+                                    </th>
+                                    <th data-field="diamondBalance"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">账户钻石余额</th>
+                                    <th data-field="diamondReward"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">打赏钻石总额
+                                    </th>
+                                    <th data-field="crystalBalance"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">账户水晶余额
+                                    </th>
+                                    <th data-field="crystalIncome"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">收入水晶总额
+                                    </th>
+                                    <th data-field="withdrawalCash"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">提现总额
+                                    </th>
+                                    <th data-halign="center"
+                                        data-align="center"
+                                        data-formatter="operation"
+                                        data-field="id"
+                                        data-events="operateEvents">操作</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- 交易详情 -->
+        <div class="modal fade" id="modal_edit" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">交易详情</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <div id="toolbars">
+                            <span id="nick_name" >用户昵称：</span>
+                        </div>
+                        <table id="trade_detail" class="table table-bordered table-hover"
+                               data-url="/finance/trade/detail"
+                               data-toolbar="#toolbars"
+                               data-show-refresh="true"
+                               data-show-toggle="true"
+                               data-show-columns="true"
+                               data-query-params="getDetaileParams"
+                               data-toggle="table"
+                               data-pagination="true"
+                               data-side-pagination="server"
+                               data-search="false"
+                               data-show-export="true">
+                            <thead>
+                            <tr>
+                                <th data-field="type"
+                                    data-formatter="incomeType"
+                                    data-th-align="center"
+                                    data-align="center">收入/支出
+                                </th>
+                                <th data-field="tradeType"
+                                    data-formatter="tradeType"
+                                    data-th-align="center"
+                                    data-align="center">交易类型</th>
+                                <th data-field="tradeDiamond"
+                                    data-formatter="YPP.formatter.integer"
+                                    data-th-align="center"
+                                    data-align="center">交易钻石</th>
+                                <th data-field="tradeBeforeCrystal"
+                                    data-formatter="YPP.formatter.integer"
+                                    data-th-align="center"
+                                    data-align="center">交易前钻石
+                                </th>
+                                <th data-field="tradeAfterDiamond"
+                                    data-formatter="YPP.formatter.integer"
+                                    data-th-align="center"
+                                    data-align="center">交易后钻石</th>
+                                <th data-field="tradeCrystal"
+                                    data-formatter="YPP.formatter.integer"
+                                    data-th-align="center"
+                                    data-align="center">交易水晶</th>
+                                <th data-field="tradeBeforeCrystal"
+                                    data-formatter="YPP.formatter.integer"
+                                    data-th-align="center"
+                                    data-align="center">交易前水晶</th>
+                                <th data-field="tradeAfterCrystal"
+                                    data-formatter="YPP.formatter.integer"
+                                    data-th-align="center"
+                                    data-align="center">交易后水晶</th>
+                                <th data-field="withdrawalCash"
+                                    data-formatter="YPP.formatter.integer"
+                                    data-th-align="center"
+                                    data-align="center">提现金额</th>
+                                <th data-field="createTime"
+                                    data-th-align="center"
+                                    data-align="center">交易时间</th>
+                            </tr>
+                            </thead>
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-success">确定</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+
+<script layout:fragment="scripts" th:inline="javascript">
+   var sel_choose='用户ID';
+
+   var userId;
+    /**
+     *
+     * 查询用户信息
+     * */
+    function onSearch() {
+        var pageSize = $('#dg-user').bootstrapTable('getOptions')['pageSize'];
+        var queryParam = getQueryParams({'offset': 0, 'limit': pageSize});
+        $('#dg-user').bootstrapTable('refresh', {
+            'url': '/finance/account/balance',
+            'query': queryParam
+        });
+    }
+   /**
+    *
+    * 获取选择queryType
+    * */
+   function getParamQueryType(){
+       var queryType='familyName';
+       if(sel_choose !=null){
+           switch(sel_choose){
+               case '用户ID':
+                   queryType='userId';
+                   break;
+               case '用户昵称':
+                   queryType='userNick';
+                   break;
+           }
+       }
+       return queryType
+   }
+   /**
+    * 重置所有属性
+    * @param obj
+    * @returns {boolean}
+    */
+   function reset_form(){
+       $('#txt_query').val("");
+   }
+
+    // 获取查询参数 onSearch内容  onOperation内容
+   function getQueryParams(params) {
+       var date = $('#txt-date-range').val();
+       var input_name = $('#txt_query').val();
+       params[getParamQueryType()] = input_name;
+       params['date'] = date;
+       return params;
+   }
+
+   // 获取查询参数 onSearch内容  onOperation内容
+   function getDetaileParams(param) {
+       param['userId'] = userId;
+       return param;
+   }
+
+   /**
+    * 操作栏
+    * @returns {string}
+    */
+   function operation() {
+       var html = []
+       html.push('<a type="button" class="btn btn-success btn-xs edit">交易详情</a>');
+       return html.join('');
+   }
+
+   /**
+    * 操作事件
+    * @returns {string}
+    */
+   window.operateEvents = {
+
+       //家族成员
+       'click .edit': function (e, value, row) {
+           $('#nick_name').text("用户昵称："+row.userNick)
+           userId = row.userId;
+           $('#modal_edit').modal('show');
+           var pageSize = $('#trade_detail').bootstrapTable('getOptions')['pageSize'];
+
+           var param={'offset': 0, 'limit': pageSize};
+           var  querparam = getDetaileParams(param);
+           $('#trade_detail').bootstrapTable('refresh', {
+               'url': '/finance/trade/detail',
+               'query': querparam
+           });
+
+       }
+   };
+   /**
+    *
+    * 状态格式转换
+    * */
+   function incomeType(value) {
+       return value == 1 ? "<span style='color: green'>收入</span>"  : (value == 0 ? "<span style='color: #00a1cb'>支出</span>" : "<span style='color: red'>未知</span>");
+   }
+
+   /**
+    *
+    * 交易状态格式转换
+    * */
+   function tradeType(value) {
+       return value == 'REWARD' ? "打赏"  : (value == 'WITHDRAW' ? "提现" : "充值");
+   }
+
+   /**
+    *
+    * 状态格式转换
+    * */
+   function typeState(value) {
+       return value == 1 ? "<span style='color: green'>已激活</span>"  : (value == 0 ? "<span style='color: #00a1cb'>未激活</span>" : "<span style='color: red'>冻结</span>");
+   }
+
+    $(function () {
+        $("#dg-user").bootstrapTable("showLoading");
+        $('.dropdown-menu li').on('click', function () {
+            $('#sel_name').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            sel_choose = $(this).text();
+        });
+    });
+
+</script>
+</body>
+</html>

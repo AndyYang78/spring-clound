@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eryu.mapper.GiftMapper">
+    <!-- 查询礼物的列表 -->
+    <select id="getQueryGift" parameterType="com.eryu.core.entity.dto.params.GiftParam" resultType="com.eryu.core.entity.dto.gift.GiftListDTO">
+        SELECT
+        `ID`             AS giftId,
+        `CREATE_TIME`    AS create_time,
+        `IMG`            AS giftImg,
+        `NAME`           AS giftName,
+        `ANIMATION_APNG` AS apngDynamic,
+        `ANIMATION_GIFT` AS gifDynamic,
+        `DOUBLE_HIT`     AS clickTrue,
+        `POSITION`       AS giftSort,
+        `STATUS`         AS status,
+         DIAMOND         AS giftPrice,
+        ANIMATION_NAME   AS dynamicName,
+        `DOUBLE_HIT_TIME`AS intervalSecond
+        FROM
+        `eryu-trade`.`T_GIFT` tg
+        WHERE
+            1=1
+        <if test="giftName != null and giftName != ''">
+            AND tg.NAME LIKE CONCAT('%', #{giftName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND tg.STATUS=#{status}
+        </if>
+        <if test="clickTrue != null and clickTrue != ''">
+            AND tg.DOUBLE_HIT = #{clickTrue}
+        </if>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询礼物的列表-数量 -->
+    <select id="getQueryGiftCount" parameterType="com.eryu.core.entity.dto.params.GiftParam" resultType="int">
+        SELECT
+         count(1)
+        FROM
+        `eryu-trade`.`T_GIFT` tg
+        WHERE
+        1=1
+        <if test="giftName != null and giftName != ''">
+            AND tg.NAME LIKE CONCAT('%', #{giftName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND tg.STATUS=#{status}
+        </if>
+        <if test="clickTrue != null and clickTrue != ''">
+            AND tg.DOUBLE_HIT = #{clickTrue}
+        </if>
+    </select>
+    <!-- 查询动效列表 -->
+    <select id="getDynamicList" parameterType="com.eryu.core.entity.dto.params.GiftParam" resultType="com.eryu.core.entity.dto.gift.DynamicListDTO">
+        SELECT
+        `ID`             AS dynamicId,
+        `CREATE_TIME`    AS create_time,
+        `NAME`           AS dynamicName,
+        `ANIMATION_APNG` AS apngDynamic,
+        `ANIMATION_GIFT` AS gifDynamic,
+        `STATUS`         AS status
+        from `eryu-trade`.`T_ANIMATION` tg
+        WHERE
+        1=1
+        <if test="dynamicName != null and dynamicName != ''">
+            AND tg.NAME LIKE CONCAT('%', #{dynamicName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND tg.STATUS=#{status}
+        </if>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询动效计数 -->
+    <select id="getDynamicCount" parameterType="com.eryu.core.entity.dto.params.GiftParam" resultType="int">
+        SELECT
+         count(1)
+        from `eryu-trade`.`T_ANIMATION` tg
+        WHERE
+        1=1
+        <if test="dynamicName != null and dynamicName != ''">
+            AND tg.NAME LIKE CONCAT('%', #{dynamicName}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            AND tg.STATUS=#{status}
+        </if>
+        <if test="limit != null and offset != null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 新增动效 -->
+    <insert id="addDynamicList" parameterType="com.eryu.core.entity.dto.params.GiftParam">
+        INSERT INTO `eryu-trade`.`T_ANIMATION` (
+        `ID`,
+        `CREATE_TIME`,
+        `UPDATE_TIME`,
+        `VERSION`,
+        `NAME`,
+        `ANIMATION_APNG`,
+        `ANIMATION_GIFT`,
+        `STATUS`
+        )
+        VALUES
+        (
+        #{dynamicId},
+        NOW(),
+        NOW(),
+        1,
+        #{dynamicName},
+        #{apngName},
+        #{gifName},
+        #{status}
+        );
+    </insert>
+    <!-- 更新修改动效 -->
+    <update id="updateDynamicList" parameterType="com.eryu.core.entity.dto.params.GiftParam">
+        UPDATE `eryu-trade`.`T_ANIMATION`
+        SET
+         `UPDATE_TIME` = NOW(),
+         `VERSION` = VERSION+1,
+          `STATUS` = #{status}
+        WHERE
+            ID= #{dynamicId}
+    </update>
+
+    <!-- 删除动效 -->
+    <update id="deleteDynamicList" parameterType="String">
+        DELETE
+        FROM
+            `eryu-trade`.T_ANIMATION
+        WHERE
+	     T_ANIMATION.ID = #{dynamicId}
+    </update>
+</mapper>

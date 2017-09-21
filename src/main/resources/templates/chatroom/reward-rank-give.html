@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>打赏排行榜管理</title>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script type="text/javascript" id="asdf" th:src="@{/content/content/room-reward-list.js}"></script>
+</head>
+<body>
+<div class="content-wrapper" layout:fragment="content">
+    <!--<img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>-->
+    <section class="content-header">
+        <h1><i class="fa fa-tags">&nbsp;</i>打赏排行榜管理</h1>
+    </section>
+
+    <section class="content">
+        <div class="box box-info" id="div_header">
+            <div class="box-header">
+                <i class="fa fa-filter"></i>
+                <h3 class="box-title">筛选条件</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
+                        <label for="input_nickname"><i class="fa fa-male">&nbsp;</i>用户ID</label>
+                        <input type="text" class="form-control" data-toggle="tooltip" data-placement="top" title="即创建者ID" id="input_filter_creator" placeholder="即创建者ID">
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
+                        <label for="input_nickname"><i class="fa fa-male">&nbsp;</i>用户昵称</label>
+                        <input type="text" class="form-control" data-toggle="tooltip" data-placement="top" title="即创建者昵称" id="input_filter_creator_name" placeholder="即创建者昵称">
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
+                        <label for="input_nickname"><i class="fa fa-male">&nbsp;</i>房间名称</label>
+                        <input type="text" class="form-control" data-toggle="tooltip" data-placement="top" title="房间标题" id="input_filter_room_name" placeholder="房间标题">
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-12 col-xs-12">
+                        <label for="input_nickname"><i class="fa fa-male">&nbsp;</i>房间模板</label>
+                        <select class="form-control" id="input_filter_room_type" data-toggle="tooltip" data-placement="top" title="即房间类型">
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-4 col-xs-4">
+                        <label>&nbsp;</label>
+                        <div class="form-group">
+                            <a class="btn btn-primary pull-left" onclick="query()" data-toggle="tooltip" data-placement="top" title="为空的条件将不参与过滤"><i class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-default div_table_content">
+            <div class="box-header">
+                <i class="fa fa-list"></i>
+                <h4 class="box-title">打赏排行榜列表</h4>
+            </div>
+            <div class="box-body">
+                <div id="toolbar">
+                    <!--<a class="btn btn-success" data-toggle="modal" data-target="#modal_add"><i class="fa fa-fw fa-plus"></i>创建打赏排行榜</a>-->
+                    <!--<a class="btn btn-danger toggle" data-toggle="modal" style="display: none"><i class="fa fa-fw fa-close"></i>关闭打赏排行榜</a>-->
+                </div>
+                <div id="context-menu" class="dropdown-menu" style="padding: 4px; opacity: 0.9;">
+                    <li data-item="close" class="btn bg-red pop-menu">关闭</li>
+                    <li data-item="warn" class="btn bg-aqua pop-menu">警告</li>
+                </div>
+                <table class="table table-bordered table-hover table_main" id="table_main"
+                       data-url="/trade/reward/list"
+                       data-toolbar="#toolbar"
+                       data-toggle="table"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-pagination="true"
+                       data-response-handler="onResponse"
+                       data-query-params="onParams"
+                       data-id-field="id"
+                       data-unique-id="id"
+                       data-search="false">
+                    <thead>
+                    <tr>
+                        <th data-halign="center" data-align="center" data-field="id" data-visible="false">ID</th>
+                        <th data-halign="center" data-align="center" data-field="localRoomNumber">模板</th>
+                        <th data-halign="center" data-align="center" data-field="BIZ_ID">聊天室ID</th>
+                        <th data-halign="center" data-align="center" data-field="userId">打赏排行榜人ID</th>
+                        <th data-halign="center" data-align="center" data-field="logo">打赏排行榜人昵称</th>
+                        <th data-halign="center" data-align="center" data-field="creatorName">打赏排行榜人性别</th>
+                        <th data-halign="center" data-align="center" data-field="RECEIVER_ID">受赏人ID</th>
+                        <th data-halign="center" data-align="center" data-field="onlineUserCount">受赏人昵称</th>
+                        <th data-halign="center" data-align="center" data-field="onlineUserCount">受赏人性别</th>
+                        <th data-halign="center" data-align="center" data-field="createTime">打赏排行榜时间</th>
+                        <th data-halign="center" data-align="center" data-field="GIFT_ID">打赏排行榜礼物</th>
+                        <th data-halign="center" data-align="center" data-field="DIAMOND">打赏排行榜消耗</th>
+                        <th data-halign="center" data-align="center" data-formatter="operation" data-events="operateEvents" data-field="id">操作</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+    <!-- 警告 -->
+    <div class="modal fade" id="modal" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">警告聊天室</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">聊天室</label>
+                            <div class="col-sm-9">
+                                <input class="hide" id="input_creator">
+                                <input type="text" disabled="disabled" class="form-control" id="input_name">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">警告</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_content" data-toggle="tooltip" data-placement="top" title="警告内容" placeholder="请输出警告内容">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commit()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

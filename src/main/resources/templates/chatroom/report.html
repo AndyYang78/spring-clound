@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>举报信息管理</title>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script type="text/javascript" id="asdf" th:src="@{/content/content/report.js}"></script>
+</head>
+<body>
+<div class="content-wrapper" layout:fragment="content">
+    <!--<img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>-->
+    <section class="content-header">
+        <h1><i class="fa fa-tags">&nbsp;</i>举报信息管理</h1>
+    </section>
+
+    <section class="content">
+        <div class="box box-info" id="div_header">
+            <div class="box-header">
+                <i class="fa fa-filter"></i>
+                <h3 class="box-title">筛选条件</h3>
+            </div>
+            <div class="box-body">
+                <div class="row">
+                    <div class="col-lg-4 col-md-4 col-sm-8 col-xs-8">
+                        <label><i class="fa fa-calendar-o">&nbsp;</i>举报时间</label>
+                        <div class="input-group">
+                            <div class="input-group-addon">
+                                <i class="fa fa-calendar"></i>
+                            </div>
+                            <input type="text" class="form-control pull-left" id="input_date_range" title="日期范围">
+                        </div>
+                    </div>
+                    <div class="col-lg-2 col-md-4 col-sm-4 col-xs-4">
+                        <label>&nbsp;</label>
+                        <div class="form-group">
+                            <a class="btn btn-primary pull-left" onclick="query()" data-toggle="tooltip" data-placement="top" title="为空的条件将不参与过滤"><i class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="row" style="margin-top: 8px;">
+                    <div class="col-lg-3 col-md-4 col-sm-12 col-xs-12">
+                        <label for="input_nickname"><i class="fa fa-male">&nbsp;</i>举报人ID</label>
+                        <input type="email" class="form-control" id="input_report_user_id" placeholder="举报人ID">
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-6 col-xs-12">
+                        <label for="select_recharge_type"><i class="fa fa-exchange">&nbsp;</i>举报类型</label>
+                        <select class="form-control" id="select_report_type">
+                            <option value="">全部</option>
+                        </select>
+                    </div>
+                    <div class="col-lg-2 col-md-3 col-sm-6 col-xs-12">
+                        <label for="select_recharge_target"><i class="fa  fa-gg">&nbsp;</i>状态</label>
+                        <select class="form-control" id="select_state">
+                            <option value="">全部</option>
+                            <option value="999" style="color: lightskyblue">未处理</option>
+                            <option value="1" style="color: green">已处理</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box box-default div_table_content">
+            <div class="box-header">
+                <i class="fa fa-list"></i>
+                <h4 class="box-title">举报信息列表</h4>
+            </div>
+            <div class="box-body">
+                <div id="toolbar">
+                    <!--<a class="btn btn-success" data-toggle="modal" data-target="#modal_add"><i class="fa fa-fw fa-plus"></i>手动添加举报信息</a>-->
+                </div>
+                <table class="table table-bordered table-hover table_main" id="table_main"
+                       data-url="/content/chatroom/report/list"
+                       data-query-params="onParams"
+                       data-method="post"
+                       data-toolbar="#toolbar"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-toggle="table"
+                       data-pagination="true"
+                       data-search="false">
+                    <thead>
+                    <tr>
+                        <th data-halign="center" data-align="center" data-visible="false" data-field="id">ID</th>
+                        <th data-halign="center" data-align="center" data-field="typeName">举报类型</th>
+                        <th data-halign="center" data-align="center" data-title="info" data-formatter="length10" data-field="info">举报内容</th>
+                        <th data-halign="center" data-align="center" data-visible="false" data-field="reportUserId">举报人</th>
+                        <th data-halign="center" data-align="center" data-field="reportUserEryuNo">举报人</th>
+                        <th data-halign="center" data-align="center" data-field="chatRoomName">被举报房间</th>
+                        <th data-halign="center" data-align="center" data-formatter="typeState" data-field="state">状态</th>
+                        <th data-halign="center" data-align="center" data-field="createTime">举报时间</th>
+                        <th data-halign="center" data-align="center" data-field="updateTime">最近操作时间</th>
+                        <th data-halign="center" data-align="center" data-formatter="operation" data-field="id" data-events="operateEvents">操作</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 添加类型 -->
+    <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">添加举报信息</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">举报人</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_name" disabled="disabled" value="admin">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commitType()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 详情 -->
+    <div class="modal fade" id="modal_detail" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content" id="div_detail" style="border-radius:16px">
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

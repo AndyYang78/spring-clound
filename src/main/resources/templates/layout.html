@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN">
+<head>
+    <meta charset="utf-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_hader" th:content="${_csrf.headerName}"/>
+
+    <title layout:title-pattern="$DECORATOR_TITLE - $CONTENT_TITLE">Eryu后台管理平台</title>
+
+    <link rel="stylesheet" href="/common/plugins/select2/select2.min.css">
+    <link rel="stylesheet" href="/common/bootstrap/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/common/plugins/bootstrap-treeview/bootstrap-treeview.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.5.0/css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/ionicons/2.0.1/css/ionicons.min.css"/>
+    <link rel="stylesheet" href="/common/plugins/select2/select2.min.css">
+    <link rel="stylesheet" href="/common/lte/css/AdminLTE.css"/>
+    <link rel="stylesheet" href="/common/lte/css/skins/_all-skins.min.css"/>
+    <link rel="stylesheet" href="/common/plugins/daterangepicker/daterangepicker.css">
+    <link rel="stylesheet" href="/common/plugins/datepicker/datepicker3.css">
+    <link rel="stylesheet" href="/common/plugins/iCheck/all.css">
+    <link rel="stylesheet" href="/common/plugins/bootstrap-table/bootstrap-table.css">
+    <link rel="stylesheet" href="/common/plugins/noty/noty.css">
+    <link rel="stylesheet" href="/content/base/common.css"/>
+
+    <script src="/common/plugins/jQuery/jquery-2.2.3.min.js"></script>
+    <script src="/common/plugins/jQuery/jquery.number.js"></script>
+    <script src="/common/plugins/jQueryUI/jquery-ui.min.js"></script>
+    <script src="/common/bootstrap/js/bootstrap.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.11.2/moment.min.js"></script>-->
+    <script src="/common/plugins/moment/moment.js"></script>
+    <script src="/common/plugins/iCheck/icheck.min.js"></script>
+    <script src="/common/plugins/daterangepicker/daterangepicker.js"></script>
+    <script src="/common/plugins/bootstrap-table/bootstrap-table.js"></script>
+    <script src="/common/plugins/bootstrap-table/extensions/contextmenu/bootstrap-table-contextmenu.js"></script>
+    <script src="/common/plugins/bootstrap-table/locale/bootstrap-table-zh-CN.js"></script>
+    <script src="/common/plugins/bootstrap-table/tableExport.js"></script>
+    <script src="/common/plugins/bootstrap-table/extensions/export/bootstrap-table-export.js"></script>
+    <!--<script src="/common/plugins/highcharts/highcharts.js"></script>-->
+    <!--<script src="/common/plugins/highcharts/data.js"></script>-->
+    <!--<script src="/common/plugins/highcharts/exporting.js"></script>-->
+    <script src="/common/plugins/noty/noty.min.js"></script>
+    <script src="/common/plugins/select2/select2.full.min.js"></script>
+    <script src="/common/lte/js/app.min.js"></script>
+    <script src="/common/lte/js/spin.min.js"></script>
+    <script src="/content/base/init.js"></script>
+    <script src="/common/bootstrap/js/toastr.min.js"></script>
+    <script src="/content/base/eryu.js"></script>
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <header th:replace="fragments/header :: header"></header>
+
+    <aside th:replace="fragments/left-side::left-side"></aside>
+
+    <div class="content-wrapper" layout:fragment="content">
+        <section class="content-header">
+            <h1>
+                Eryu后台管理平台
+                <small>综合管理</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> Level</a></li>
+                <li class="active">Here</li>
+            </ol>
+        </section>
+
+        <section class="content"></section>
+    </div>
+
+    <footer th:replace="fragments/footer::footer"></footer>
+
+    <aside th:replace="fragments/control-side::control-side"></aside>
+
+    <div class="control-sidebar-bg"></div>
+</div>
+<script src="/common/plugins/mo/mo.min.js"></script>
+<script layout:fragment="scripts" type="text/javascript" th:inline="javascript"></script>
+</body>
+</html>

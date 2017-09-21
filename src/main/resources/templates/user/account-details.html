@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>账户明细</title>
+    <meta name="description" content="Flat UI Kit Free is a Twitter Bootstrap Framework design and Theme, this responsive framework includes a PSD and HTML version."/>
+    <meta name="_csrf" content="${_csrf.token}"/>
+    <meta name="_csrf_header" content="${_csrf.headerName}"/>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <link rel="stylesheet" href="/common/plugins/colorpicker/bootstrap-colorpicker.min.css"/>
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1><i class="fa fa-list-ol"></i>
+                账户明细
+                <small>查看账户明细</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i> 用户管理</a></li>
+                <li class="active">账户明细</li>
+            </ol>
+        </section>
+
+        <!-- Main content -->
+        <section id="main" class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-info">
+                        <!-- /.box-header -->
+                        <div class="box-header">
+                            <h3 class="box-title">筛选条件</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label><i class="fa fa-male"></i>用户搜索:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="sel_name" class="btn btn-info dropdown-toggle"
+                                                    data-toggle="dropdown">用户ID
+                                                <span class="fa fa-caret-down"></span></button>
+                                            <ul class="dropdown-menu">
+                                                <li class="li_recharge"><a href="#">用户ID</a></li>
+                                                <li class="li_recharge"><a href="#">用户昵称</a></li>
+                                            </ul>
+                                        </div>
+                                        <input type="text" id="txt_query" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>订单号:</label>
+                                    <div class="form-group">
+                                        <input type="text" id="txt_number" class="form-control" placeholder="请输入订单号">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>交易类型:</label>
+                                    <div class="form-group">
+                                        <select id="sel_status" class="form-control back" data-toggle="tooltip" data-placement="top" title="目前只有聊天室打赏">
+                                            <option value="">全部</option>
+                                            <option value="REWARD">聊天室打赏</option>
+                                            <option value="REWARD">直播间打赏</option>
+                                            <option value="REWARD">聊天礼物</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-lg-4 col-md-4 col-sm-6 col-xs-8">
+                                    <label><i class="fa fa-calendar-o">&nbsp;</i>创建时间:</label>
+                                    <div class="input-group">
+                                        <div class="input-group-addon"><i class="fa fa-calendar"></i></div>
+                                        <input class="form-control pull-right" id="txt_recharge_range" type="text"
+                                               style="text-align: left">
+                                    </div>
+                                </div>
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="onSearch()"><i class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="reset_form()"><i class="fa fa-fw fa-refresh"></i>&nbsp;重&nbsp;&nbsp;置</a>
+                                    </div>
+                                </div>
+                            </div>
+                    </div>
+                    </div>
+                    <div id="firstDiv"></div>
+                    <div class="box box-success">
+                        <div class="box-body">
+                            <table id="dg-user" class="table table-bordered table-hover"
+                                   data-url="/user/account/detail"
+                                   data-toolbar="#toolbar"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-query-params="getQueryParams"
+                                   data-toggle="table"
+                                   data-pagination="true"
+                                   data-side-pagination="server"
+                                   data-search="false"
+                                   data-show-export="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="userNo"
+                                        data-th-align="center"
+                                        data-align="center">用户ID
+                                    </th>
+                                    <th data-field="userNick"
+                                        data-th-align="center"
+                                        data-align="center">用户昵称
+                                    </th>
+                                    <th data-field="type"
+                                        data-formatter="type"
+                                        data-th-align="center"
+                                        data-align="center">收入/支出
+                                    </th>
+                                    <th data-field="tradeType"
+                                        data-formatter="tradeType"
+                                        data-th-align="center"
+                                        data-align="center">交易类型</th>
+                                    <th data-field="tradeDiamond"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">交易钻石</th>
+                                    <th data-field="tradeBeforeCrystal"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">交易前钻石
+                                    </th>
+                                    <th data-field="tradeAfterDiamond"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">交易后钻石</th>
+                                    <th data-field="tradeCrystal"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">交易水晶</th>
+                                    <th data-field="tradeBeforeCrystal"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">交易前水晶</th>
+                                    <th data-field="tradeAfterCrystal"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">交易后水晶</th>
+                                    <th data-field="withdrawalCash"
+                                        data-formatter="YPP.formatter.integer"
+                                        data-th-align="center"
+                                        data-align="center">提现金额</th>
+                                    <th data-field="createTime"
+                                        data-th-align="center"
+                                        data-align="center">交易时间</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </section>
+    </div>
+
+</div>
+
+
+<script layout:fragment="scripts" th:inline="javascript">
+    var sel_choose = '用户ID';
+    //默认时间
+    var now = new Date();
+    var defineDate = now.getFullYear() + "-" + ((now.getMonth() + 1) < 10 ? "0" : "") + (now.getMonth() + 1) + "-" + (now.getDate() < 10 ? "0" : "") + now.getDate()
+
+    function onSearch() {
+        var pageSize = $('#dg-user').bootstrapTable('getOptions')['pageSize'];
+        var queryParam = getQueryParams({'offset': 0, 'limit': pageSize});
+        $('#dg-user').bootstrapTable('refresh', {
+            'url': '/user/account/detail',
+            'query': queryParam
+        });
+    }
+
+   /**
+    * 重置所有属性
+    * @param obj
+    * @returns {boolean}
+    */
+   function reset_form(){
+       $('#txt_query').val("");
+       $('#txt_number').val("");
+       $('#sel_status').val("");
+   }
+    /**
+     *
+     * 获取选择queryType
+     * */
+    function getParamQueryType(){
+        var queryType='userId';
+        if(sel_choose !=null){
+            switch(sel_choose){
+                case '用户ID':
+                    queryType='erNo';
+                    break;
+                case '用户昵称':
+                    queryType='nickname';
+                    break;
+            }
+        }
+        return queryType
+    }
+
+    /**
+     *  获取查询参数
+     *
+     *  */
+    function getQueryParams(params) {
+        var dateStart = $('#txt_recharge_range').val().split(" - ")[0];
+        var dateEnd = $('#txt_recharge_range').val().split(" - ")[1];
+        var number = $('#txt_number').val();
+        var query = $('#txt_query').val();
+        if(dateStart==null||dateStart==''){
+            dateStart= defineDate;
+            dateEnd=defineDate;
+        }
+        params['dateStart'] = dateStart;
+        params['dateEnd'] = dateEnd;
+        if(query!=null && query!=''){
+            params[getParamQueryType()]= $('#txt_query').val();
+        }
+        if(number!=null && number !=''){
+            params['orderId'] = number;
+        }
+        params['tradeType'] = $('#sel_status').val();
+        return params;
+    }
+
+
+
+    $(function () {
+        $('#txt_recharge_range').daterangepicker({
+            autoApply: true, maxDate: moment().format('YYYY-MM-DD'),
+            startDate: moment().subtract(0, 'days').format('YYYY-MM-DD'),
+            locale: DATE_LOCAL_DAY
+        });
+
+        $('.dropdown-menu .li_recharge').on('click', function () {
+            $('#sel_name').text($(this).text()).append('<span class="fa fa-caret-down"></span>');
+            sel_choose = $(this).text();
+        });
+
+        $("#dg-user").bootstrapTable("showLoading");
+    });
+
+    //状态格式化显示
+    function codeState(value) {
+        switch (value){
+            case 0:
+                return "<span style='color: green'>未验证</span>";
+                break;
+            case 1:
+                return "<span style='color: blue'>已经验证</span>";
+                break;
+        }
+    }
+    /**
+     *
+     * 状态格式转换
+     * */
+    function type(value) {
+        return value == 1 ? "<span style='color: green'>收入</span>"  : (value ==0 ? "<span style='color: #00a1cb'>支出</span>" : "<span style='color: red'>未知</span>");
+    }
+
+    /**
+     *
+     * 交易状态格式转换
+     * */
+    function tradeType(value) {
+        switch (value){
+            case 'MANUAL-BOSS':
+                return "<span style='color: #3c8dbc'>手工充值-老板</span>";
+                break;
+            case 'MANUAL-OPERATE':
+                return "<span style='color: #00c0ef'>手工充值-运营常规</span>";
+                break;
+            case 'MANUAL-SUPPLY':
+                return "<span style='color: #001F3F'>手工充值-补充</span>";
+                break;
+            case 'RECHARGE-ALIPAY':
+                return "<span style='color: #00a65a'>支付宝</span>";
+                break;
+            case 'RECHARGE-IAP':
+                return "<span style='color: #605ca8'>IAP充值</span>";
+                break;
+            case 'RECHARGE-WEIXIN':
+                return "<span style='color: #f39c12'>微信支付</span>";
+                break;
+            case 'REWARD-CHATROOM':
+                return "<span style='color: #ff851b'>聊天室打赏</span>";
+                break;
+        }
+    }
+
+</script>
+</body>
+</html>

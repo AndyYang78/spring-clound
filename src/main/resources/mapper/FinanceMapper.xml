@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+        <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.eryu.mapper.FinanceMapper">
+<!-- 查询打赏详细信息 -->
+<select id="queryRewardList" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="com.eryu.core.entity.dto.finance.FinaceRewardDTO">
+    SELECT
+    T_USER.ERYU_NO         AS rewardId,
+    tu.ERYU_NO             AS awardId,
+    T_USER.USERNAME        AS rewarNick,
+    tu.USERNAME            AS awardNick,
+    T_REWARD.DIAMOND       AS diamonds,
+    T_REWARD.CREATE_TIME   AS createTime
+    FROM
+    `eryu-trade`.T_REWARD
+    LEFT JOIN `eryu-user`.T_USER ON T_USER.ID = T_REWARD.USER_ID
+    LEFT JOIN (
+    SELECT
+    T_REWARD.ID,
+    tu.ERYU_NO,
+    tu.USERNAME
+    FROM `eryu-trade`.T_REWARD
+    LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = T_REWARD.RECEIVER_ID
+    ) tu ON tu.ID=T_REWARD.ID
+    WHERE
+    1=1
+    <if test="dateStart != null and dateEnd != null" >
+        AND <![CDATA[ T_REWARD.CREATE_TIME>=#{dateStart} AND T_REWARD.CREATE_TIME<=#{dateEnd}]]>
+    </if>
+    <if test="rewardId != null and rewardId != ''">
+        AND T_USER.ERYU_NO = #{rewardId}
+    </if>
+    <if test="awardId != null and awardId != ''">
+        AND tu.ERYU_NO = #{awardId}
+    </if>
+    <if test="rewardNick != null and rewardNick != ''">
+        AND T_USER.USERNAME LIKE CONCAT('%', #{rewardNick}, '%')
+    </if>
+    <if test="awardNick != null and awardNick !=''">
+        AND tu.USERNAME LIKE CONCAT('%', #{awardNick}, '%')
+    </if>
+    <if test="diamonds != 0 and diamonds >-1">
+        AND T_REWARD.DIAMOND=#{diamonds}
+    </if>
+    ORDER BY T_REWARD.CREATE_TIME DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<!-- 查询打赏详细信息-计数 -->
+<select id="queryRewardCount" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="int">
+    SELECT
+    count(1)
+    FROM
+    `eryu-trade`.T_REWARD
+    LEFT JOIN `eryu-user`.T_USER ON T_USER.ID = T_REWARD.USER_ID
+    LEFT JOIN (
+    SELECT
+    T_REWARD.ID,
+    tu.ERYU_NO,
+    tu.USERNAME
+    FROM `eryu-trade`.T_REWARD
+    LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = T_REWARD.RECEIVER_ID
+    ) tu ON tu.ID=T_REWARD.ID
+    WHERE
+    1=1
+    <if test="dateStart != null and dateEnd != null" >
+        AND <![CDATA[ T_REWARD.CREATE_TIME>=#{dateStart} AND T_REWARD.CREATE_TIME<=#{dateEnd}]]>
+    </if>
+    <if test="rewardId != null and rewardId != ''">
+        AND T_USER.ERYU_NO = #{rewardId}
+    </if>
+    <if test="awardId != null and awardId != ''">
+        AND tu.ERYU_NO = #{awardId}
+    </if>
+    <if test="rewardNick != null and rewardNick != ''">
+        AND T_USER.USERNAME LIKE CONCAT('%', #{rewardNick}, '%')
+    </if>
+    <if test="awardNick != null and awardNick !=''">
+        AND tu.USERNAME LIKE CONCAT('%', #{awardNick}, '%')
+    </if>
+    <if test="diamonds != 0 and diamonds >-1">
+        AND T_REWARD.DIAMOND=#{diamonds}
+    </if>
+</select>
+
+<!-- 查询账户余额 -->
+<select id="queryAccoutBalanceList" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="com.eryu.core.entity.dto.finance.FinaceAccountDTO">
+    SELECT
+    tac.USER_ID                       AS userId,
+    tu.ERYU_NO                        AS userNo,
+    tu.USERNAME                       AS userNick,
+    tu.`STATUS`                       AS state,
+    tac.ACCUMULATIVE_RECHARGE_DIAMOND AS diamondAll,
+    tac.DIAMOND_BALANCE               AS diamondBalance,
+    tac. ACCUMULATIVE_CONSUME_DIAMOND AS diamondReward,
+    tac.CRYSTAL_BALANCE               AS crystalBalance,
+    tac.ACCUMULATIVE_INCOME_CRYSTAL   AS crystalIncome,
+    tac.ACCUMULATIVE_WITHDRAW_AMOUNT  AS withdrawalCash
+    FROM
+    `eryu-trade`.T_ACCOUNT tac
+    LEFT JOIN `eryu-user`.T_USER tu ON tu.ID= tac.USER_ID
+    WHERE
+    1=1
+    <if test="userNick != null and userNick != ''">
+        AND tu.USERNAME LIKE CONCAT('%', #{userNick}, '%')
+    </if>
+    <if test="userId != null and userId !=''">
+        AND tu.ERYU_NO =#{userId}
+    </if>
+    ORDER BY tac.CREATE_TIME DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<!-- 查询账户余额-计数 -->
+<select id="queryAccoutBalanceCount" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="int">
+    SELECT
+    COUNT(1)
+    FROM
+    `eryu-trade`.T_ACCOUNT tac
+    LEFT JOIN `eryu-user`.T_USER tu ON tu.ID= tac.USER_ID
+    WHERE
+    1=1
+    <if test="userNick != null and userNick != ''">
+        AND tu.USERNAME LIKE CONCAT('%', #{userNick}, '%')
+    </if>
+    <if test="userId != null and userId !=''">
+        AND tu.ERYU_NO =#{userId}
+    </if>
+</select>
+
+<!-- 查询账户交易明细 -->
+<select id="queryTradeAccoutDetail" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="com.eryu.core.entity.dto.finance.FinaceAccountDetailDTO">
+    SELECT
+    ttf.INCOME       AS type,
+    ttf.TRADE_TYPE   AS tradeType,
+    CASE WHEN ttf.INCOME =1 THEN ttf.DIAMOND ELSE (-1)*ttf.DIAMOND END  AS tradeDiamond,
+    CASE WHEN ttf.INCOME =1 THEN ttf.CRYSTAL ELSE (-1)*ttf.CRYSTAL END  AS tradeCrystal,
+    CASE WHEN ttf.TRADE_TYPE ='WITHDRAW' THEN ttf.AMOUNT ELSE 0    END  AS withdrawalCash,
+    ttf.CREATE_TIME  AS createTime
+    FROM
+    `eryu-trade`.T_TRADE_FLOW ttf
+    WHERE
+    1=1
+    AND STATUS =1
+    <if test="userId != null and userId !=''">
+        AND ttf.USER_ID =#{userId}
+    </if>
+    ORDER BY ttf.CREATE_TIME DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<!-- 查询账户交易明细-技术 -->
+<select id="queryTradeAccoutCount" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="int">
+    SELECT
+    COUNT(1)
+    FROM
+    `eryu-trade`.T_TRADE_FLOW ttf
+    WHERE
+    1=1
+    AND ttf.STATUS =1
+    <if test="userId != null and userId !=''">
+        AND ttf.USER_ID =#{userId}
+    </if>
+</select>
+
+<!-- 查询充值订单明细 -->
+<select id="queryRechargeList" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="com.eryu.core.entity.dto.finance.FinaceRechargeListDTO">
+    SELECT
+    tu.ERYU_NO     AS userNo,
+    tu.USERNAME    AS userNick,
+    tr.AMOUNT      AS rechargeMoney,
+    tr.CREATE_TIME AS rechargeDate,
+    tr.PAY_TIME    AS payDate,
+    tp.`NAME`      AS payType,
+    tr.PAY_STATUS  AS payState,
+    tr.PAY_TRADE_NO AS payNumber,
+    tr.ID           AS rechargeId
+    FROM
+    `eryu-trade`.T_RECHARGE tr
+    LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = tr.USER_ID
+    LEFT JOIN `eryu-trade`.T_PAY_TYPE tp ON tr.PAY_TYPE =tp.TYPE
+    WHERE 1=1
+    <if test="rechargeStart != null and rechargeEnd != null" >
+        AND <![CDATA[ tr.CREATE_TIME>=#{rechargeStart} AND tr.CREATE_TIME<=#{rechargeEnd}]]>
+    </if>
+    <if test="payStart != null and payEnd != null" >
+        AND <![CDATA[ tr.PAY_TIME>=#{payStart} AND tr.PAY_TIME<=#{payEnd}]]>
+    </if>
+    <if test="userId != null and userId !=''">
+        AND tu.ERYU_NO =#{userId}
+    </if>
+    <if test="userNick != null and userNick != ''">
+        AND tu.USERNAME LIKE CONCAT('%', #{userNick}, '%')
+    </if>
+    <if test="payVoucher != null and payVoucher !=''">
+        AND tr.PAY_TRADE_NO =#{payVoucher}
+    </if>
+    <if test="rechargeId != null and rechargeId !=''">
+        AND tr.ID =#{rechargeId}
+    </if>
+    <if test="rechargeMoney != 0 and rechargeMoney >-1">
+        AND tr.AMOUNT =#{rechargeMoney}
+    </if>
+    <if test="payType != null and payType !=''">
+        AND tr.PAY_TYPE =#{payType}
+    </if>
+    <if test="payType != null and payType !=''">
+        AND tr.PAY_TYPE =#{payType}
+    </if>
+    <if test="payStates!=null">
+        AND tr.PAY_STATUS in
+        <foreach item="item" index="index" collection="payStates" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </if>
+    ORDER BY tr.CREATE_TIME DESC
+    LIMIT #{limit} OFFSET #{offset}
+</select>
+
+<!-- 查询充值订单明细-计数 -->
+<select id="queryRechargeListCount" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="int">
+    SELECT
+     COUNT(1)
+    FROM
+    `eryu-trade`.T_RECHARGE tr
+    LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = tr.USER_ID
+    LEFT JOIN `eryu-trade`.T_PAY_TYPE tp ON tr.PAY_TYPE =tp.TYPE
+    WHERE 1=1
+    <if test="rechargeStart != null and rechargeEnd != null" >
+        AND <![CDATA[ tr.CREATE_TIME>=#{rechargeStart} AND tr.CREATE_TIME<=#{rechargeEnd}]]>
+    </if>
+    <if test="payStart != null and payEnd != null" >
+        AND <![CDATA[ tr.PAY_TIME>=#{payStart} AND tr.PAY_TIME<=#{payEnd}]]>
+    </if>
+    <if test="userId != null and userId !=''">
+        AND tu.ERYU_NO =#{userId}
+    </if>
+    <if test="userNick != null and userNick != ''">
+        AND tu.USERNAME LIKE CONCAT('%', #{userNick}, '%')
+    </if>
+    <if test="payVoucher != null and payVoucher !=''">
+        AND tr.PAY_TRADE_NO =#{payVoucher}
+    </if>
+    <if test="rechargeId != null and rechargeId !=''">
+        AND tr.ID =#{rechargeId}
+    </if>
+    <if test="rechargeMoney != 0 and rechargeMoney >-1">
+        AND tr.AMOUNT =#{rechargeMoney}
+    </if>
+    <if test="payType != null and payType !=''">
+        AND tr.PAY_TYPE =#{payType}
+    </if>
+    <if test="payType != null and payType !=''">
+        AND tr.PAY_TYPE =#{payType}
+    </if>
+    <if test="payStates!=null">
+        AND tr.PAY_STATUS in
+        <foreach item="item" index="index" collection="payStates" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </if>
+</select>
+
+<!-- 查询提现明细数据 -->
+<select id="queryWithdrawList" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="com.eryu.core.entity.dto.finance.FinaceWithDrawDTO">
+    SELECT
+        tu.ERYU_NO     AS userNo,
+        tu.USERNAME    AS userNick,
+        tu.MOBILE      AS mobile,
+        tu.GENDER      AS sex,
+        tu.`NAME`      AS name,
+        tu.ID_CARD     AS identity,
+        tw.AMOUNT      AS withDrawMoney,
+        tsa.ACCOUNT_ID AS aliNumber,
+        tw.CREATE_TIME AS applyTime,
+        tw.APPROVE_TIME AS examineTime,
+        tw.`STATUS`    AS examineState,
+        tw.REMARK      AS examineResult,
+        tw.`APPROVER_ID`AS examineMan,
+        tw.ID          AS withdrawId,
+        tw.CRYSTAL     AS withdrawCrystal,
+        tw.USER_ID     AS userId
+    FROM
+    `eryu-trade`.T_WITHDRAW tw
+    LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = tw.USER_ID
+    LEFT JOIN `eryu-user`.T_SOCIAL_ACCOUNT tsa ON tu.ID = tsa.USER_ID
+    WHERE 1=1
+    <if test="dateStart != null and dateEnd != null" >
+        AND <![CDATA[ tw.CREATE_TIME>=#{dateStart} AND tw.CREATE_TIME<=#{dateEnd}]]>
+    </if>
+    <if test="examineState != null and examineState >-1">
+        AND tw.STATUS = #{examineState}
+    </if>
+    ORDER BY tw.CREATE_TIME DESC
+    <if test="limit != null and limit >-1 and offset !=null">
+      LIMIT #{limit} OFFSET #{offset}
+    </if>
+</select>
+<!-- 查询提现明细数据-计数 -->
+    <select id="queryWithdrawListCount" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="int">
+        SELECT
+        count(1)
+        FROM
+        `eryu-trade`.T_WITHDRAW tw
+        LEFT JOIN `eryu-user`.T_USER tu ON tu.ID = tw.USER_ID
+        LEFT JOIN `eryu-user`.T_SOCIAL_ACCOUNT tsa ON tu.ID = tsa.USER_ID
+        WHERE 1=1
+        <if test="dateStart != null and dateEnd != null">
+            AND <![CDATA[ tw.CREATE_TIME>=#{dateStart} AND tw.CREATE_TIME<=#{dateEnd}]]>
+        </if>
+        <if test="examineState != null and examineState >-1">
+            AND tw.STATUS = #{examineState}
+        </if>
+    </select>
+
+    <!-- 查询手工充值数据明细-->
+    <select id="queryManualList" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="com.eryu.core.entity.dto.finance.FinaceManualListDTO">
+        SELECT
+             tu.ERYU_NO         AS userNo,
+             tu.USERNAME        AS userNick,
+             T_MANUAL_RECHARGE.`CREATE_TIME`       AS operationDate,
+            `OPERATION_TYPE`    AS operationType,
+            `RECHARGE_DIAMONDS` AS rechargeDiamonds,
+            `RECHARGE_CRYSTAL`  AS rechargeCrystal,
+            `DEDUCT_DIAMONDS`   AS deductDiamonds,
+            `DEDUCT_CRYSTAL`    AS deductCrystal,
+            `REMARK`            AS remarks
+        FROM
+        `eryu-trade`.`T_MANUAL_RECHARGE`
+        LEFT OUTER JOIN `eryu-user`.T_USER tu ON tu.ID = T_MANUAL_RECHARGE.USER_ID
+        WHERE 1=1
+        <if test="dateStart != null and dateEnd != null">
+            AND <![CDATA[ T_MANUAL_RECHARGE.CREATE_TIME>=#{dateStart} AND T_MANUAL_RECHARGE.CREATE_TIME<=#{dateEnd}]]>
+        </if>
+        <if test="rechargeType != null and rechargeType !=''">
+            AND T_MANUAL_RECHARGE.OPERATION_TYPE = #{rechargeType}
+        </if>
+        <if test="userId != null and userId !=''">
+            AND tu.ERYU_NO = #{userId}
+        </if>
+        <if test="limit != null and limit >-1 and offset !=null">
+            LIMIT #{limit} OFFSET #{offset}
+        </if>
+    </select>
+    <!-- 查询手工充值数据-计数-->
+    <select id="queryManualCount" parameterType="com.eryu.core.entity.dto.params.FinanceParam" resultType="int">
+        SELECT
+            COUNT(1)
+        FROM
+        `eryu-trade`.`T_MANUAL_RECHARGE`
+        LEFT OUTER JOIN `eryu-user`.T_USER tu ON tu.ID = T_MANUAL_RECHARGE.USER_ID
+        WHERE 1=1
+        <if test="dateStart != null and dateEnd != null">
+            AND <![CDATA[ T_MANUAL_RECHARGE.CREATE_TIME>=#{dateStart} AND T_MANUAL_RECHARGE.CREATE_TIME<=#{dateEnd}]]>
+        </if>
+        <if test="rechargeType != null and rechargeType !=''">
+            AND T_MANUAL_RECHARGE.OPERATION_TYPE = #{rechargeType}
+        </if>
+        <if test="userId != null and userId !=''">
+            AND tu.ERYU_NO = #{userId}
+        </if>
+    </select>
+    <!-- 查询用户的数据信息-->
+    <select id="queryUserId" parameterType="String" resultType="String">
+        SELECT
+            T_USER.ID
+        FROM
+            `eryu-user`.T_USER
+        WHERE
+            1 = 1
+        AND T_USER.MOBILE=#{mobile}
+   </select>
+
+
+</mapper>

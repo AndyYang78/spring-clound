@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>礼物列表</title>
+    <meta name="description" content="Flat UI Kit Free is a Twitter Bootstrap Framework design and Theme, this responsive framework includes a PSD and HTML version."/>
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <meta name="viewport" content="width=1000, initial-scale=1.0, maximum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_hader" th:content="${_csrf.headerName}"/>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <link rel="stylesheet" href="/common/bootstrap/css/fileinput.css"/>
+    <link rel="stylesheet" href="/common/bootstrap/css/theme.css"/>
+    <script src="/common/bootstrap/js/fileinput.js"></script>
+    <script src="/common/bootstrap/js/zh.js"></script>
+
+</head>
+<body class="hold-transition skin-blue sidebar-mini">
+<div class="wrapper">
+    <!-- Content Wrapper. Contains page content -->
+    <div class="content-wrapper" layout:fragment="content">
+        <!-- Content Header (Page header) -->
+        <section class="content-header">
+            <h1><i class="fa fa-cc"></i>
+                动效列表
+                <small>查看动效列表</small>
+            </h1>
+            <ol class="breadcrumb">
+                <li><a href="#"><i class="fa fa-dashboard"></i>礼物管理</a></li>
+                <li class="active">动效列表</li>
+            </ol>
+        </section>
+        <!-- Main content -->
+        <section id="main" class="content">
+            <div class="row">
+                <div class="col-xs-12">
+                    <div class="box box-info">
+                        <!-- /.box-header -->
+                        <div class="box-header">
+                            <h3 class="box-title"><i class="fa fa-filter"></i>筛选条件</h3>
+                        </div>
+                        <div class="box-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <label>搜索内容:</label>
+                                    <div class="input-group input-group-md">
+                                        <div class="input-group-btn">
+                                            <button type="button" id="sel_name" class="btn btn-info dropdown-toggle" data-toggle="dropdown">动效名称</button>
+                                        </div>
+                                        <!-- /btn-group -->
+                                        <input type="text" id="txt_query" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-md-2">
+                                    <label>状态:</label>
+                                    <div class="form-group">
+                                        <select id="sel_use" class="form-control back">
+                                            <option value="">全部</option>
+                                            <option value =1>启用</option>
+                                            <option value =0>停用</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="onSearch()"><i class="fa fa-fw fa-search"></i>&nbsp;查&nbsp;&nbsp;询</a>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-1">
+                                    <label>&nbsp;</label>
+                                    <div class="form-group">
+                                        <a class="btn btn-primary pull-left" onclick="reset_form()"><i class="fa fa-fw fa-refresh"></i>&nbsp;重&nbsp;&nbsp;置</a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="firstDiv"></div>
+                    <div class="box box-success">
+                        <div id="toolbar">
+                            <a class="btn btn-success" data-toggle="modal" data-target="#modal_add"><i class="fa fa-fw fa-plus"></i>添加动效</a>
+                        </div>
+                        <div class="box-body">
+                            <table id="gift_list" class="table table-bordered table-hover"
+                                   data-url="/gift/dynamic/list"
+                                   data-toolbar="#toolbar"
+                                   data-show-refresh="true"
+                                   data-show-toggle="true"
+                                   data-show-columns="true"
+                                   data-query-params="getQueryParams"
+                                   data-toggle="table"
+                                   data-pagination="true"
+                                   data-side-pagination="server"
+                                   data-search="false"
+                                   data-show-export="true">
+                                <thead>
+                                <tr>
+                                    <th data-field="dynamicName"
+                                        data-th-align="center"
+                                        data-align="center">动效名称</th>
+                                    <th data-field="gifDynamic"
+                                        class="big_picture"
+                                        data-formatter="YPP.formatter.avatar"
+                                        data-th-align="center"
+                                        data-align="center">Gif动效预览</th>
+                                    <th data-field="apngDynamic"
+                                        class="big_picture"
+                                        data-formatter="YPP.formatter.avatar"
+                                        data-th-align="center"
+                                        data-align="center">APNG动效预览</th>
+                                    <th data-field="status"
+                                        data-formatter="typeState"
+                                        data-th-align="center"
+                                        data-align="center">动效状态</th>
+                                    <th data-field="create_time"
+                                        data-th-align="center"
+                                        data-align="center">创建时间</th>
+                                    <th data-halign="center"
+                                        data-align="center"
+                                        data-formatter="operation"
+                                        data-field="id"
+                                        data-events="operateEvents">操作</th>
+                                </tr>
+                                </thead>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+
+        <!--添加动效 -->
+        <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-md" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">添加动效</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="input_name" class="col-sm-2 control-label">动效名称:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="input_name" placeholder="请输入动效名称">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="input_name" class="col-sm-2 control-label">动效状态:</label>
+                                <div class="col-sm-2 col-md-3">
+                                    <select id="dynamic_status" class="form-control">
+                                        <option value=1>启用</option>
+                                        <option value =0>停用</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-6">
+                                    <label>Gif动效:</label>
+                                    <input id="file-fr" name="file-fr" type="file" >
+                                </div>
+
+                                <div class="col-sm-6">
+                                    <label>APNG动效:</label>
+                                    <input id="file-apng" name="file-fr" type="file" >
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                        <button type="button" onclick="addDynamic()" class="btn btn-success">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 修改动效 -->
+        <div class="modal fade" id="modal_update" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-lg" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">修改动效</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <form class="form-horizontal">
+                            <div class="form-group">
+                                <label for="input_name" class="col-sm-2 control-label">动效名称:</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" id="dynamic_name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-2">
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>Gif动效预览:</label>
+                                    <div id="preview">
+                                        <img id="imghead" border="0" src="/common/lte/img/photo_icon.png" width="200" height="200" onclick="$('#previewImg').click();">
+                                    </div>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label>APNG动效预览:</label>
+                                    <div id="apng">
+                                        <img id="imgApng" border="0" src="/common/lte/img/photo_icon.png" width="200" height="200" onclick="$('#previewImg').click();">
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-2 control-label">动效状态:</label>
+                            <div class="col-sm-3">
+                                <select id="update_status" class="form-control">
+                                    <option value=1>启用</option>
+                                    <option value = 0>停用</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                        <button type="button" onclick="commitType()" class="btn btn-success">提交</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- 删除动效 -->
+        <div class="modal fade" id="modal_delete" tabindex="-1" role="dialog">
+            <div class="modal-dialog modal-xs" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h4 class="modal-title">删除动效</h4>
+                    </div>
+                    <div class="modal-body ">
+                        <h5>你确认删除动效：<b style="color: blue" id="dynamic_names"></b>？</h5>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                        <button type="button" onclick="deleteType()" class="btn btn-success">确认</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script layout:fragment="scripts">
+
+    //gif 图片，apng图片
+    var giftImg,apngImg;
+    //动态Id
+    var dynamicId;
+
+    var token = $('meta[name="_csrf"]').attr("content");
+    var header = $('meta[name="_csrf_hader"]').attr("content");
+    $(document).ajaxSend(function (e, xhr, opt) {
+        xhr.setRequestHeader(header, token);
+    });
+
+    //上传图片
+    $('#file-fr').fileinput({
+        language: 'zh',
+        uploadUrl: '/file/uploadImg',
+        allowedFileExtensions: ['jpg', 'png', 'gif'],
+        maxFileCount: 100,
+        enctype: 'multipart/form-data',
+        showUpload: true, //是否显示上传按钮
+        showCaption: false,//是否显示标题
+        browseClass: "btn btn-primary", //按钮样式
+        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+    }).on('fileuploaded', function(event, data, previewId, index) {
+        giftImg = data.response.data;
+    });
+    //上传图片
+    $('#file-apng').fileinput({
+        language: 'zh',
+        uploadUrl: '/file/uploadImg',
+        allowedFileExtensions: ['jpg', 'png', 'gif'],
+        maxFileCount: 100,
+        enctype: 'multipart/form-data',
+        showUpload: true, //是否显示上传按钮
+        showCaption: false,//是否显示标题
+        browseClass: "btn btn-primary", //按钮样式
+        previewFileIcon: "<i class='glyphicon glyphicon-king'></i>",
+        msgFilesTooMany: "选择上传的文件数量({n}) 超过允许的最大数值{m}！",
+    }).on('fileuploaded', function(event, data, previewId, index) {
+        apngImg = data.response.data;
+    });
+
+    /**
+     *
+     * 数据查询
+     * */
+    function onSearch() {
+        var pageSize = $('#gift_list').bootstrapTable('getOptions')['pageSize'];
+        var queryParam = getQueryParams({'offset': 0, 'limit': pageSize});
+        $('#gift_list').bootstrapTable('refresh', {
+            'url': '/gift/dynamic/list',
+            'query': queryParam
+        });
+    }
+
+    /**
+     *
+     * 获取查询参数
+     * */
+    function getQueryParams(params) {
+        var giftName = $('#txt_query').val();
+        var sel_use = $('#sel_use').val();
+        params['dynamicName'] = giftName;
+        params['status'] = sel_use;
+        return params;
+    }
+
+    /**
+     * 重置所有属性
+     * @param obj
+     * @returns {boolean}
+     */
+    function reset_form(){
+        $('#txt_query').val("");
+        $('#sel_use').val("");
+    }
+    /**
+     * 操作栏
+     * @param obj
+     * @returns {boolean}
+     */
+    function operation() {
+        var html = [];
+        html.push('<a type="button" class="btn btn-success btn-sm edit">修改动效</a>&nbsp;');
+        html.push('<a type="button" class="btn btn-danger btn-sm delete">删除</a>');
+        return html.join('');
+    }
+
+    /**
+     * 操作事件
+     * @param obj
+     * @returns {boolean}
+     */
+    window.operateEvents = {
+        //编辑
+        'click .edit': function (e, value, row) {
+            $('#dynamic_name').val(row.dynamicName);
+            $('#dynamic_name').attr('disabled',true);
+            document.getElementById('imghead').setAttribute('src', 'http://photo.eryufm.cn/'+row.gifDynamic);
+            document.getElementById('imgApng').setAttribute('src', 'http://photo.eryufm.cn/'+row.apngDynamic);
+            $('#update_status').val(row.status)
+            dynamicId = row.dynamicId;
+            $('#modal_update').modal('show');
+        },
+        //删除
+        'click .delete': function (e, value, row) {
+            $('#dynamic_names').text(row.dynamicName);
+            dynamicId = row.dynamicId;
+            $('#modal_delete').modal('show');
+        }
+    };
+
+    /**
+     * 提交类型添加
+     */
+    function commitType() {
+        var status = $('#update_status').val();
+        var param = {};
+        param['status'] = status;
+        param['dynamicId'] = dynamicId;
+
+        //开始提交
+        $.post('/gift/dynamic/update', param, function (response) {
+            if (response.success) {
+                $('#gift_list').bootstrapTable('refresh');
+                $('#modal_update').modal('hide');
+                note('添加成功！', 'success', 1500, 'topRight');
+            } else {
+                note('添加失败:' + response.message, 'error', 5000, 'topRight');
+            }
+        })
+    }
+
+    /**
+     * 提交类型添加
+     */
+    function addDynamic() {
+        var name = $('#input_name').val();
+        if (name === '') {
+            return note('名称不能为空！', 'warning', 1500, 'topRight');
+        }
+        if (giftImg === ''||giftImg ==null) {
+            return note('请上传gif图像！', 'warning', 1500, 'topRight');
+        }
+        if (apngImg === ''||apngImg ==null) {
+            return note('请上传APNG图像！', 'warning', 1500, 'topRight');
+        }
+        var status = $('#dynamic_status').val();
+        var param = {};
+        param['dynamicName'] = name;
+        param['status'] = status;
+        param['gifName'] = giftImg;
+        param['apngName'] = apngImg;
+        //开始提交
+        $.post('/gift/dynamic/add', param, function (response) {
+            if (response.success) {
+                $('#gift_list').bootstrapTable('refresh');
+                $('#modal_add').modal('hide');
+                note('添加成功！', 'success', 1500, 'topRight');
+            } else {
+                note('添加失败:' + response.message, 'error', 5000, 'topRight');
+            }
+        })
+    }
+
+    /**
+     *
+     * 删除礼物动效
+     * */
+    function deleteType(){
+        var param = {};
+        param['dynamicId'] = dynamicId;
+        //开始提交
+        $.post('/gift/dynamic/delete', param, function (response) {
+            if (response.success) {
+                $('#gift_list').bootstrapTable('refresh');
+                $('#modal_delete').modal('hide');
+                note('删除成功！', 'success', 1500, 'topRight');
+            } else {
+                note('删除失败:' + response.message, 'error', 5000, 'topRight');
+            }
+        })
+
+    }
+
+
+
+    /**
+     * 状态格式化
+     * @param value 值
+     * @param row 列
+     * @param index index
+     * @returns {*}
+     */
+    function typeState(value) {
+        switch (value){
+            case 0:
+                return "<span style='color: red'>停用</span>";
+                break;
+            case 1:
+                return "<span style='color: green'>启用</span>";
+                break;
+        }
+    }
+</script>
+</body>
+</html>

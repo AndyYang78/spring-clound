@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>标签管理</title>
+    <link rel="stylesheet" href="/common/plugins/colorpicker/bootstrap-colorpicker.min.css"/>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+    <script type="text/javascript" id="asdf" th:src="@{/common/plugins/colorpicker/bootstrap-colorpicker.min.js}"></script>
+    <script type="text/javascript" id="asdf" th:src="@{/content/content/type.js}"></script>
+</head>
+<body>
+<div class="content-wrapper" layout:fragment="content">
+    <!--<img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>-->
+    <section class="content-header">
+        <h1><i class="fa fa-tags">&nbsp;</i>聊天室类别（标签）管理</h1>
+    </section>
+
+    <section class="content">
+        <div class="box box-default div_table_content">
+            <div class="box-header">
+                <i class="fa fa-list"></i>
+                <h4 class="box-title">聊天室类型列表</h4>
+            </div>
+            <div class="box-body">
+                <div id="toolbar">
+                    <a class="btn btn-success" data-toggle="modal" data-target="#modal_add"><i class="fa fa-fw fa-plus"></i>新增类型</a>
+                </div>
+                <table class="table table-bordered table-hover table_main" id="table_main"
+                       data-url="/content/chatroom/type/list"
+                       data-toolbar="#toolbar"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-toggle="table"
+                       data-pagination="true"
+                       data-search="false">
+                    <thead>
+                    <tr>
+                        <th data-halign="center" data-align="center" data-visible="false" data-field="id">ID</th>
+                        <th data-halign="center" data-align="center" data-field="name">名称</th>
+                        <th data-halign="center" data-align="center" data-formatter="colorFormat" data-field="color">颜色</th>
+                        <th data-halign="center" data-align="center" data-field="version">版本号</th>
+                        <th data-halign="center" data-align="center" data-formatter="typeState" data-field="state">状态</th>
+                        <th data-halign="center" data-align="center" data-field="chatRoomTemplate.name">所属模板</th>
+                        <th data-halign="center" data-align="center" data-field="createTime">创建时间</th>
+                        <th data-halign="center" data-align="center" data-field="updateTime">更新时间</th>
+                        <th data-halign="center" data-align="center" data-formatter="operation" data-field="id" data-events="operateEvents">操作</th>
+                    </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 添加类型 -->
+    <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">添加聊天室类型</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">名称</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_name" placeholder="输入类型名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_color" class="col-sm-3 control-label">颜色</label>
+                            <div class="col-sm-9">
+                                <div class="input-group colorpicker-component" id="input_color">
+                                    <input type="text" value="#00AABB" class="form-control"/>
+                                    <span class="input-group-addon"><i></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_tamplate" class="col-sm-3 control-label">模板</label>
+                            <div class="col-sm-9">
+                                <select id="input_tamplate" class="js-example-basic-single select2" style="width: 100%">
+                                    <option value="">默认</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commitType()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- 编辑类型 -->
+    <div class="modal fade" id="modal_edit" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-sm" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">编辑聊天室类型</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">ID</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" disabled="disabled" id="input_edit_id">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">名称</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" id="input_edit_name" placeholder="输入类型名称">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_color" class="col-sm-3 control-label">颜色</label>
+                            <div class="col-sm-9">
+                                <div class="input-group colorpicker-component" id="input_edit_color">
+                                    <input type="text" value="" class="form-control"/>
+                                    <span class="input-group-addon"><i></i></span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_edit_tamplate" class="col-sm-3 control-label">模板</label>
+                            <div class="col-sm-9">
+                                <select id="input_edit_tamplate" class="js-example-basic-single select2" style="width: 100%">
+                                    <option value="">默认</option>
+                                </select>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commitUpdate()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+</html>

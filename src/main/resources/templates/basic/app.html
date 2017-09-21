@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout" lang="zh-CN" layout:decorator="layout">
+<head>
+    <title>兑换配置</title>
+    <!-- 后端变量在这里处理 -->
+    <script th:inline="javascript">
+        var page = [[${page}]];
+    </script>
+</head>
+<body>
+<div class="content-wrapper" layout:fragment="content">
+    <!--<img style="position: absolute;top: 0;left: 0;background: #eee; width: 100%; height: 100%; border: 0; padding: 0; margin: 0" src="/common/lte/img/bg5.jpg"/>-->
+    <section class="content-header">
+        <h1><i class="fa fa-exchange">&nbsp;</i>兑换配置</h1>
+    </section>
+
+    <section class="content">
+        <div class="box box-default div_table_content">
+            <div class="box-header">
+                <i class="fa fa-exchange"></i>
+                <h4 class="box-title">兑换配置</h4>
+            </div>
+            <div class="box-body">
+                <table class="table table-bordered table-hover table_main" id="table_main"
+                       data-url="/content/version/setting/list"
+                       data-toolbar="#toolbar"
+                       data-show-refresh="true"
+                       data-show-toggle="true"
+                       data-show-columns="true"
+                       data-show-export="true"
+                       data-toggle="table"
+                       data-pagination="true"
+                       data-search="false">
+                    <thead>
+                        <tr>
+                            <th data-halign="center" data-align="center"  data-field="name">参数名</th>
+                            <th data-halign="center" data-align="center" data-field="configValue">参数值</th>
+                            <th data-halign="center" data-align="center"  data-field="configKey">参数定义</th>
+                            <th data-halign="center" data-align="center" data-field="updateTime">更新时间</th>
+                            <th data-halign="center" data-align="center" data-formatter="operation" data-field="id" data-events="operateEvents">操作</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- 添加兑换配置 -->
+    <div class="modal fade" id="modal_add" tabindex="-1" role="dialog">
+        <div class="modal-dialog modal-md" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                    <h4 class="modal-title">修改兑换配置</h4>
+                </div>
+                <div class="modal-body ">
+                    <form class="form-horizontal">
+                        <div class="form-group">
+                            <label for="input_name" class="col-sm-3 control-label">参数名</label>
+                            <div class="col-sm-9">
+                                <input class="hide" id="input_id">
+                                <input type="text" class="form-control" id="input_name" placeholder="输入参数名">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_password" class="col-sm-3 control-label">参数值</label>
+                            <div class="col-sm-9">
+                                <input  class="form-control" id="input_value" placeholder="输入参数值！如：0.05">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="input_roles" class="col-sm-3 control-label">参数定义</label>
+                            <div class="col-sm-9">
+                                <input  class="form-control" id="input_key" placeholder="输入参数定义">
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" data-dismiss="modal" aria-label="Close" class="btn btn-default">取消</button>
+                    <button type="button" onclick="commit()" class="btn btn-success">提交</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script layout:fragment="scripts" th:inline="javascript">
+
+    var id;
+
+    /**
+     * 数据获取
+     */
+    function query() {
+        $('#table_main').bootstrapTable('refresh');
+    }
+
+    //操作栏
+    function operation(value, row) {
+        var html = [];
+        html.push('<a type="button" class="btn btn-primary btn-xs edit">修改配置</a> ');
+        return html.join('');
+    }
+
+    var event_flag = 'create';
+
+    //操作事件
+    window.operateEvents = {
+        //编辑
+        'click .edit': function (e, value, row) {
+            id = row.id;
+            $('#input_name').val(row.name);
+            $('#input_name').attr('disabled',true);
+            $('#input_value').val(row.configValue);
+            $('#input_key').val(row.configKey);
+            $('#input_key').attr('disabled',true);
+            $('#modal_add').modal('show');
+        }
+    };
+
+
+    /**
+     * 提交类型添加
+     */
+    function commit() {
+        var value = $('#input_value').val();
+        if (value === '') {
+            return note('配置值不能为空！', 'warning', 1500, 'topRight');
+        }
+        var param = {};
+        param['id'] = id;
+        param['configValue'] = value;
+        //开始提交
+        $.post('/content/version/setting/update/app', param, function (response) {
+            log(response);
+            if (response.success) {
+                $('#table_main').bootstrapTable('refresh');
+                $('#modal_add').modal('hide');
+                note('修改成功！', 'success', 1500, 'topRight');
+            } else {
+                note('修改失败:' + response.message, 'error', 5000, 'topRight');
+            }
+        });
+    }
+
+
+</script>
+</body>
+</html>
